@@ -2,8 +2,11 @@ package com.csl.web.weight.bean;
 
 import java.util.Date;
 
+import com.csl.mybatis.annotation.MyBatisColumn;
+
 public class WeightRecord {
 	private Date createTime;
+	@MyBatisColumn(isID = true)
 	private Integer id;
 	private Float weight;
 	private String comment;

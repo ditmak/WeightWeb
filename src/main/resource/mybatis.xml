@@ -29,8 +29,6 @@
 				<value>classpath:Mapper/*.xml</value>
 			</list>
 		</property>
-		<!-- <property name="typeAliasesPackage" value="com.nicchagil.mybatis3spring3intg.bean" 
-			/> -->
 		<property name="plugins">
 			<array>
 				<bean class="com.csl.mybatis.DAO.MappInterceptor">
@@ -40,7 +38,7 @@
 	</bean>
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<property name="basePackage" value="com.csl.mybatis.DAO" />
+		<property name="basePackage" value="com.csl.web.weight.dao" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 	</bean>
 
