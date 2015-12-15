@@ -33,6 +33,7 @@
 			<array>
 				<bean class="com.csl.mybatis.DAO.MappInterceptor">
 				</bean>
+				<bean class="com.github.pagehelper.PageHelper"></bean>
 			</array>
 		</property>
 	</bean>
