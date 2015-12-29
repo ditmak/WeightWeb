@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:tx="http://www.springframework.org/schema/tx"
@@ -11,7 +12,9 @@
 		http://www.springframework.org/schema/aop
 	    http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
 	    http://www.springframework.org/schema/tx
-	    http://www.springframework.org/schema/tx/spring-tx-2.5.xsd ">
+	    http://www.springframework.org/schema/tx/spring-tx-2.5.xsd 
+	    http://www.springframework.org/schema/mvc 
+	    http://www.springframework.org/schema/mvc/spring-mvc.xsd">
     <!-- 启用spring mvc 注解 -->
     <context:annotation-config />
 
@@ -21,5 +24,8 @@
     <!-- 完成请求和注解POJO的映射 -->
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
         <!-- 对转向页面的路径解析。prefix：前缀， suffix：后缀 -->
-    
+     <mvc:resources mapping="/resources/**" location="/resources/" />
+     <mvc:resources mapping="/images/**" location="/images/" />
+    <mvc:resources mapping="/js/**" location="/js/" />
+     <mvc:resources mapping="/view/**" location="/view/" />
 </beans>
