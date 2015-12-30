@@ -1,33 +1,59 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap 101 Template</title>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bootstrap 101 Template</title>
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/metisMenu/2.2.0/metisMenu.min.css">
-
-  </head>
-  <body>
-    <h1>你好，世界！</h1>
-    <ul  id="menu">
-     <li class="active">
-    	<a href="#" aria-expanded="true">Menu 1</a>
-    	<ul  aria-expanded="true"> <li>xxx</li></ul>
-    </li>
-     <li>
-    <a href="#" aria-expanded="false">Menu 2</a>
-    <ul aria-expanded="false">
-    <li>xxx</li>
-    </ul>
-    </li>
-    </ul>
-    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
-    <script src="../js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/metisMenu/2.2.0/metisMenu.min.js"></script>
-    <script src="../js/index.js"></script>
-  </body>
+<link rel="shortcut icon" href="favicon.ico">
+<link href="../css/bootstrap.min.css?v=3.3.5" rel="stylesheet">
+<link href="../css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+<link href="../css/animate.min.css" rel="stylesheet">
+<link href="../css/style.min.css?v=4.0.0" rel="stylesheet">
+</head>
+<body class="fixed-sidebar full-height-layout gray-bg"
+	style="overflow: hidden">
+	<div id="wrapper">
+		<!--左侧导航开始-->
+		<nav class="navbar-default navbar-static-side" role="navigation">
+			<div class="nav-close">
+				<i class="fa fa-times-circle"></i>
+			</div>
+			<div class="sidebar-collapse">
+				<ul class="nav" id="side-menu">
+					<li class="nav-header">
+						<div class="dropdown profile-element">
+							<span><img alt="image" class="img-circle" src="../img/profile_small.jpg" /></span> 
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#"> 
+									<span class="clear">
+										<span class="block m-t-xs"><strong class="font-bold">Beaut-zihan</strong></span>
+										<span class="text-muted text-xs block">超级管理员<b class="caret"></b></span>
+									</span>
+							</a>
+							<ul class="dropdown-menu animated fadeInRight m-t-xs">
+								<li><a class="J_menuItem" href="form_avatar.html">修改头像</a>
+								</li>
+								<li><a class="J_menuItem" href="profile.html">个人资料</a></li>
+								<li><a class="J_menuItem" href="contacts.html">联系我们</a></li>
+								<li><a class="J_menuItem" href="mailbox.html">信箱</a></li>
+								<li class="divider"></li>
+								<li><a href="login.html">安全退出</a></li>
+							</ul>
+						</div>
+						<div class="logo-element">H+</div>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</div>
+	<script src="../js/jquery.min.js?v=2.1.4"></script>
+	<script src="../js/bootstrap.min.js?v=3.3.5"></script>
+	<script src="../js/plugins/metisMenu/jquery.metisMenu.js"></script>
+	<script src="../js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+	<script src="../js/plugins/layer/layer.min.js"></script>
+	<script src="../js/hplus.min.js?v=4.0.0"></script>
+	<script type="text/javascript" src="../js/contabs.min.js"></script>
+	<script src="../js/plugins/pace/pace.min.js"></script>
+</body>
 </html>
