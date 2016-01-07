@@ -20,6 +20,15 @@
     <servlet-name>springmvc</servlet-name>
     <url-pattern>/*</url-pattern>
     </servlet-mapping>
+    <filter>
+		<display-name>ContextFilter</display-name>
+		<filter-name>ContextFilter</filter-name>
+		<filter-class>com.csl.web.weight.filter.ContextFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>ContextFilter</filter-name>
+		<url-pattern>*.html</url-pattern>
+	</filter-mapping>
   <!-- <filter>
   <filter-name>ShiroFilter</filter-name>
   <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>

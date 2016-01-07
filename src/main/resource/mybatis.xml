@@ -39,8 +39,7 @@
           			</value>
         		</property>
 				</bean>
-				<bean class="com.csl.mybatis.DAO.MappInterceptor">
-				</bean>
+				<bean class="com.csl.mybatis.DAO.MappInterceptor"></bean>
 			</array>
 		</property>
 	</bean>
