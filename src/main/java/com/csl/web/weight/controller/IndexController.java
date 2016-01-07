@@ -14,6 +14,7 @@ import com.csl.mybatis.utils.Conditions;
 import com.csl.web.weight.bean.WeightRecord;
 import com.csl.web.weight.dao.WeightRecordDAO;
 import com.github.pagehelper.PageHelper;
+import com.google.gson.Gson;
 
 @RequestMapping("/")
 @Controller
@@ -34,11 +35,14 @@ public class IndexController {
 		wrDAO.insertEntity(record);
 		return "success";
 	}
-
-	public @ResponseBody List<WeightRecord> getRecords(int size){
-		PageHelper.startPage(0, 31);
+	@RequestMapping("getLastRecords")
+	/*
+	 * 参数使用Integer， 原生类型会报错
+	 */
+	public String getRecords(Integer size){
+		PageHelper.startPage(0, 7,false);
 		List<WeightRecord> findEntity = wrDAO.findEntity(new Conditions().orderBy("createTime", true));
-		return findEntity;
-
+		Gson gson = new Gson();
+		return gson.toJson(findEntity);
 	}
 }

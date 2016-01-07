@@ -9,20 +9,24 @@ $(function(){
 			   function(echart){
 				 	var myChart =  echart.init(chart[0]);
 				 	myChart.showLoading();
-				 	//getMessage();
+				 	var data = getMessage();
+				 	console.log(data);
 				 	myChart.setOption(option); 
 				 	myChart.hideLoading();
 			  }
 			);
 });
-function getData(){
+function getMessage(){
+	var result ;
 	$.ajax({
 		type:"POST",
-		url:"/weight/getLastWeight",
+		url:"/getLastRecords",
 		async:true,
 		success:function(data){
+			result= data;
 		}
 	});
+	return result;
 }
 var option = {
 	    title : {
