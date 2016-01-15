@@ -23,7 +23,7 @@
 
     <!-- 完成请求和注解POJO的映射 -->
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
-        <!-- 对转向页面的路径解析。prefix：前缀， suffix：后缀 -->
-    <!--  <mvc:resources mapping="/resource/**" location="/resource/" />
+        <!-- 对转向页面的路径解析。prefix：前缀， suffix：后缀  为何加了这个controller就被覆盖了？
+     <mvc:resources mapping="/resource/**" location="/resource/" />
      <mvc:resources mapping="/view/**" location="/view/" /> -->
 </beans>
