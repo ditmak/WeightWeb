@@ -3,34 +3,50 @@ $(function(){
 	var chart = $("#echarts-line");
 	require([
 			   'echarts',
-			   'echarts/chart/line'
+			   'echarts/chart/line',
+			   'echarts/chart/bar',
 			   ],
 			   function(echart){
 				 	var myChart =  echart.init(chart[0]);
+				 	var series = []
 				 	myChart.showLoading();
+				 	myChart.setOption(option); 
 				 	var data = getMessage();
 				 	console.log(data);
-				 	myChart.setOption(option); 
+				 	var lineData = castTolineData(data);
+				 	lineBaseData.name="me";
+				 	lineBaseData.data=lineData;
+				 	series.push(lineBaseData);
+				 	console.log(series)
+				 	myChart.setSeries(series,true);
+				 	myChart.setOption({legend:{data:['me']}});
 				 	myChart.hideLoading();
 			  }
 			);
 });
 function castTolineData(rawData){
+	var lineData=[];
 	if(rawData){
-		for(var index in rowData){
-			console.log(rowData)
+		for(var index in rawData){
+			var data = rawData[index];
+			console.log(data)
+			var pointData = [];
+			pointData.push(new Date(data.createTime));
+			pointData.push(data.weight);
+			lineData.push(pointData);
 		}
 	}
+	return lineData;
 }
 function getMessage(){
 	var result ;
 	$.ajax({
 		type:"POST",
 		url:"/WeightWeb/getLastRecords.chtml",
-		async:true,
+		async:false,
 		success:function(data){
 			if(data.resultType=='SUCCESS')
-				result=data;
+				result=data.data;
 			else{
 				console.log(data);
 			}
@@ -55,8 +71,9 @@ var lineBaseData = {
             ]
         },
         markLine : {
+        	precision:2,
             data : [
-                {type : 'average', name: '平均值'}
+                {type : 'average', name: '平均值',valueIndex:1}
             ]
         }
     };

@@ -1,1 +1,286 @@
-define("echarts/chart/heatmap",["require","./base","../layer/heatmap","../config","../util/ecData","zrender/tool/util","zrender/tool/color","zrender/shape/Image","../chart"],function(e){function t(e,t,n,a,o){i.call(this,e,t,n,a,o),this.refresh(a)}var i=e("./base"),n=e("../layer/heatmap"),a=e("../config"),o=(e("../util/ecData"),e("zrender/tool/util")),r=(e("zrender/tool/color"),e("zrender/shape/Image"));return a.heatmap={zlevel:0,z:2,clickable:!0},t.prototype={type:a.CHART_TYPE_HEATMAP,refresh:function(e){this.clear(),e&&(this.option=e,this.series=e.series),this._init()},_init:function(){var e=this.series;this.backupShapeList();for(var t=e.length,i=0;t>i;++i)if(e[i].type===a.CHART_TYPE_HEATMAP){e[i]=this.reformOption(e[i]);var o=new n(e[i]),s=o.getCanvas(e[i].data,this.zr.getWidth(),this.zr.getHeight()),l=new r({position:[0,0],scale:[1,1],hoverable:this.option.hoverable,style:{x:0,y:0,image:s,width:s.width,height:s.height}});this.shapeList.push(l)}this.addShapeList()}},o.inherits(t,i),e("../chart").define("heatmap",t),t}),define("echarts/layer/heatmap",["require"],function(){function e(e){if(this.option=e,e)for(var i in t)this.option[i]=void 0!==e[i]?e[i]:t[i];else this.option=t}var t={blurSize:30,gradientColors:["blue","cyan","lime","yellow","red"],minAlpha:.05,valueScale:1,opacity:1},i=20,n=256;return e.prototype={getCanvas:function(e,t,a){var o=this._getBrush(),r=this._getGradient(),s=i+this.option.blurSize,l=document.createElement("canvas");l.width=t,l.height=a;for(var h=l.getContext("2d"),m=e.length,V=0;m>V;++V){var d=e[V],U=d[0],p=d[1],c=d[2],u=Math.min(1,Math.max(c*this.option.valueScale||this.option.minAlpha,this.option.minAlpha));h.globalAlpha=u,h.drawImage(o,U-s,p-s)}for(var g=h.getImageData(0,0,l.width,l.height),y=g.data,m=y.length/4;m--;){var b=4*m+3,u=y[b]/256,f=Math.floor(u*(n-1));y[b-3]=r[4*f],y[b-2]=r[4*f+1],y[b-1]=r[4*f+2],y[b]*=this.option.opacity}return h.putImageData(g,0,0),l},_getBrush:function(){if(!this._brushCanvas){this._brushCanvas=document.createElement("canvas");var e=i+this.option.blurSize,t=2*e;this._brushCanvas.width=t,this._brushCanvas.height=t;var n=this._brushCanvas.getContext("2d");n.shadowOffsetX=t,n.shadowBlur=this.option.blurSize,n.shadowColor="black",n.beginPath(),n.arc(-e,e,i,0,2*Math.PI,!0),n.closePath(),n.fill()}return this._brushCanvas},_getGradient:function(){if(!this._gradientPixels){var e=n,t=document.createElement("canvas");t.width=1,t.height=e;for(var i=t.getContext("2d"),a=i.createLinearGradient(0,0,0,e),o=this.option.gradientColors.length,r=0;o>r;++r)"string"==typeof this.option.gradientColors[r]?a.addColorStop((r+1)/o,this.option.gradientColors[r]):a.addColorStop(this.option.gradientColors[r].offset,this.option.gradientColors[r].color);i.fillStyle=a,i.fillRect(0,0,1,e),this._gradientPixels=i.getImageData(0,0,1,e).data}return this._gradientPixels}},e}),define("echarts/layer/heatmap",["require"],function(){function e(e){if(this.option=e,e)for(var i in t)this.option[i]=void 0!==e[i]?e[i]:t[i];else this.option=t}var t={blurSize:30,gradientColors:["blue","cyan","lime","yellow","red"],minAlpha:.05,valueScale:1,opacity:1},i=20,n=256;return e.prototype={getCanvas:function(e,t,a){var o=this._getBrush(),r=this._getGradient(),s=i+this.option.blurSize,l=document.createElement("canvas");l.width=t,l.height=a;for(var h=l.getContext("2d"),m=e.length,V=0;m>V;++V){var d=e[V],U=d[0],p=d[1],c=d[2],u=Math.min(1,Math.max(c*this.option.valueScale||this.option.minAlpha,this.option.minAlpha));h.globalAlpha=u,h.drawImage(o,U-s,p-s)}for(var g=h.getImageData(0,0,l.width,l.height),y=g.data,m=y.length/4;m--;){var b=4*m+3,u=y[b]/256,f=Math.floor(u*(n-1));y[b-3]=r[4*f],y[b-2]=r[4*f+1],y[b-1]=r[4*f+2],y[b]*=this.option.opacity}return h.putImageData(g,0,0),l},_getBrush:function(){if(!this._brushCanvas){this._brushCanvas=document.createElement("canvas");var e=i+this.option.blurSize,t=2*e;this._brushCanvas.width=t,this._brushCanvas.height=t;var n=this._brushCanvas.getContext("2d");n.shadowOffsetX=t,n.shadowBlur=this.option.blurSize,n.shadowColor="black",n.beginPath(),n.arc(-e,e,i,0,2*Math.PI,!0),n.closePath(),n.fill()}return this._brushCanvas},_getGradient:function(){if(!this._gradientPixels){var e=n,t=document.createElement("canvas");t.width=1,t.height=e;for(var i=t.getContext("2d"),a=i.createLinearGradient(0,0,0,e),o=this.option.gradientColors.length,r=0;o>r;++r)"string"==typeof this.option.gradientColors[r]?a.addColorStop((r+1)/o,this.option.gradientColors[r]):a.addColorStop(this.option.gradientColors[r].offset,this.option.gradientColors[r].color);i.fillStyle=a,i.fillRect(0,0,1,e),this._gradientPixels=i.getImageData(0,0,1,e).data}return this._gradientPixels}},e});
+define('echarts/chart/heatmap', [
+    'require',
+    './base',
+    '../layer/heatmap',
+    '../config',
+    '../util/ecData',
+    'zrender/tool/util',
+    'zrender/tool/color',
+    'zrender/shape/Image',
+    '../chart'
+], function (require) {
+    var ChartBase = require('./base');
+    var HeatmapLayer = require('../layer/heatmap');
+    var ecConfig = require('../config');
+    var ecData = require('../util/ecData');
+    var zrUtil = require('zrender/tool/util');
+    var zrColor = require('zrender/tool/color');
+    var zrImage = require('zrender/shape/Image');
+    ecConfig.heatmap = {
+        zlevel: 0,
+        z: 2,
+        clickable: true
+    };
+    function Heatmap(ecTheme, messageCenter, zr, option, myChart) {
+        ChartBase.call(this, ecTheme, messageCenter, zr, option, myChart);
+        this.refresh(option);
+    }
+    Heatmap.prototype = {
+        type: ecConfig.CHART_TYPE_HEATMAP,
+        refresh: function (newOption) {
+            this.clear();
+            if (newOption) {
+                this.option = newOption;
+                this.series = newOption.series;
+            }
+            this._init();
+        },
+        _init: function () {
+            var series = this.series;
+            this.backupShapeList();
+            var len = series.length;
+            for (var i = 0; i < len; ++i) {
+                if (series[i].type === ecConfig.CHART_TYPE_HEATMAP) {
+                    series[i] = this.reformOption(series[i]);
+                    var layer = new HeatmapLayer(series[i]);
+                    var canvas = layer.getCanvas(series[i].data, this.zr.getWidth(), this.zr.getHeight());
+                    var image = new zrImage({
+                        position: [
+                            0,
+                            0
+                        ],
+                        scale: [
+                            1,
+                            1
+                        ],
+                        hoverable: this.option.hoverable,
+                        style: {
+                            x: 0,
+                            y: 0,
+                            image: canvas,
+                            width: canvas.width,
+                            height: canvas.height
+                        }
+                    });
+                    this.shapeList.push(image);
+                }
+            }
+            this.addShapeList();
+        }
+    };
+    zrUtil.inherits(Heatmap, ChartBase);
+    require('../chart').define('heatmap', Heatmap);
+    return Heatmap;
+});define('echarts/layer/heatmap', ['require'], function (require) {
+    var defaultOptions = {
+        blurSize: 30,
+        gradientColors: [
+            'blue',
+            'cyan',
+            'lime',
+            'yellow',
+            'red'
+        ],
+        minAlpha: 0.05,
+        valueScale: 1,
+        opacity: 1
+    };
+    var BRUSH_SIZE = 20;
+    var GRADIENT_LEVELS = 256;
+    function Heatmap(opt) {
+        this.option = opt;
+        if (opt) {
+            for (var i in defaultOptions) {
+                if (opt[i] !== undefined) {
+                    this.option[i] = opt[i];
+                } else {
+                    this.option[i] = defaultOptions[i];
+                }
+            }
+        } else {
+            this.option = defaultOptions;
+        }
+    }
+    Heatmap.prototype = {
+        getCanvas: function (data, width, height) {
+            var brush = this._getBrush();
+            var gradient = this._getGradient();
+            var r = BRUSH_SIZE + this.option.blurSize;
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            var len = data.length;
+            for (var i = 0; i < len; ++i) {
+                var p = data[i];
+                var x = p[0];
+                var y = p[1];
+                var value = p[2];
+                var alpha = Math.min(1, Math.max(value * this.option.valueScale || this.option.minAlpha, this.option.minAlpha));
+                ctx.globalAlpha = alpha;
+                ctx.drawImage(brush, x - r, y - r);
+            }
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var pixels = imageData.data;
+            var len = pixels.length / 4;
+            while (len--) {
+                var id = len * 4 + 3;
+                var alpha = pixels[id] / 256;
+                var colorOffset = Math.floor(alpha * (GRADIENT_LEVELS - 1));
+                pixels[id - 3] = gradient[colorOffset * 4];
+                pixels[id - 2] = gradient[colorOffset * 4 + 1];
+                pixels[id - 1] = gradient[colorOffset * 4 + 2];
+                pixels[id] *= this.option.opacity;
+            }
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        },
+        _getBrush: function () {
+            if (!this._brushCanvas) {
+                this._brushCanvas = document.createElement('canvas');
+                var r = BRUSH_SIZE + this.option.blurSize;
+                var d = r * 2;
+                this._brushCanvas.width = d;
+                this._brushCanvas.height = d;
+                var ctx = this._brushCanvas.getContext('2d');
+                ctx.shadowOffsetX = d;
+                ctx.shadowBlur = this.option.blurSize;
+                ctx.shadowColor = 'black';
+                ctx.beginPath();
+                ctx.arc(-r, r, BRUSH_SIZE, 0, Math.PI * 2, true);
+                ctx.closePath();
+                ctx.fill();
+            }
+            return this._brushCanvas;
+        },
+        _getGradient: function () {
+            if (!this._gradientPixels) {
+                var levels = GRADIENT_LEVELS;
+                var canvas = document.createElement('canvas');
+                canvas.width = 1;
+                canvas.height = levels;
+                var ctx = canvas.getContext('2d');
+                var gradient = ctx.createLinearGradient(0, 0, 0, levels);
+                var len = this.option.gradientColors.length;
+                for (var i = 0; i < len; ++i) {
+                    if (typeof this.option.gradientColors[i] === 'string') {
+                        gradient.addColorStop((i + 1) / len, this.option.gradientColors[i]);
+                    } else {
+                        gradient.addColorStop(this.option.gradientColors[i].offset, this.option.gradientColors[i].color);
+                    }
+                }
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1, levels);
+                this._gradientPixels = ctx.getImageData(0, 0, 1, levels).data;
+            }
+            return this._gradientPixels;
+        }
+    };
+    return Heatmap;
+});define('echarts/layer/heatmap', ['require'], function (require) {
+    var defaultOptions = {
+        blurSize: 30,
+        gradientColors: [
+            'blue',
+            'cyan',
+            'lime',
+            'yellow',
+            'red'
+        ],
+        minAlpha: 0.05,
+        valueScale: 1,
+        opacity: 1
+    };
+    var BRUSH_SIZE = 20;
+    var GRADIENT_LEVELS = 256;
+    function Heatmap(opt) {
+        this.option = opt;
+        if (opt) {
+            for (var i in defaultOptions) {
+                if (opt[i] !== undefined) {
+                    this.option[i] = opt[i];
+                } else {
+                    this.option[i] = defaultOptions[i];
+                }
+            }
+        } else {
+            this.option = defaultOptions;
+        }
+    }
+    Heatmap.prototype = {
+        getCanvas: function (data, width, height) {
+            var brush = this._getBrush();
+            var gradient = this._getGradient();
+            var r = BRUSH_SIZE + this.option.blurSize;
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            var len = data.length;
+            for (var i = 0; i < len; ++i) {
+                var p = data[i];
+                var x = p[0];
+                var y = p[1];
+                var value = p[2];
+                var alpha = Math.min(1, Math.max(value * this.option.valueScale || this.option.minAlpha, this.option.minAlpha));
+                ctx.globalAlpha = alpha;
+                ctx.drawImage(brush, x - r, y - r);
+            }
+            var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var pixels = imageData.data;
+            var len = pixels.length / 4;
+            while (len--) {
+                var id = len * 4 + 3;
+                var alpha = pixels[id] / 256;
+                var colorOffset = Math.floor(alpha * (GRADIENT_LEVELS - 1));
+                pixels[id - 3] = gradient[colorOffset * 4];
+                pixels[id - 2] = gradient[colorOffset * 4 + 1];
+                pixels[id - 1] = gradient[colorOffset * 4 + 2];
+                pixels[id] *= this.option.opacity;
+            }
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        },
+        _getBrush: function () {
+            if (!this._brushCanvas) {
+                this._brushCanvas = document.createElement('canvas');
+                var r = BRUSH_SIZE + this.option.blurSize;
+                var d = r * 2;
+                this._brushCanvas.width = d;
+                this._brushCanvas.height = d;
+                var ctx = this._brushCanvas.getContext('2d');
+                ctx.shadowOffsetX = d;
+                ctx.shadowBlur = this.option.blurSize;
+                ctx.shadowColor = 'black';
+                ctx.beginPath();
+                ctx.arc(-r, r, BRUSH_SIZE, 0, Math.PI * 2, true);
+                ctx.closePath();
+                ctx.fill();
+            }
+            return this._brushCanvas;
+        },
+        _getGradient: function () {
+            if (!this._gradientPixels) {
+                var levels = GRADIENT_LEVELS;
+                var canvas = document.createElement('canvas');
+                canvas.width = 1;
+                canvas.height = levels;
+                var ctx = canvas.getContext('2d');
+                var gradient = ctx.createLinearGradient(0, 0, 0, levels);
+                var len = this.option.gradientColors.length;
+                for (var i = 0; i < len; ++i) {
+                    if (typeof this.option.gradientColors[i] === 'string') {
+                        gradient.addColorStop((i + 1) / len, this.option.gradientColors[i]);
+                    } else {
+                        gradient.addColorStop(this.option.gradientColors[i].offset, this.option.gradientColors[i].color);
+                    }
+                }
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 1, levels);
+                this._gradientPixels = ctx.getImageData(0, 0, 1, levels).data;
+            }
+            return this._gradientPixels;
+        }
+    };
+    return Heatmap;
+});

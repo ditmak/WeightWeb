@@ -1,2 +1,2120 @@
-define("echarts/chart/wordCloud",["require","./base","zrender/shape/Text","../layout/WordCloud","../component/grid","../component/dataRange","../config","../util/ecData","zrender/tool/util","zrender/tool/color","../chart"],function(e){function t(e,t,n,a,o){i.call(this,e,t,n,a,o),this.refresh(a)}var i=e("./base"),n=e("zrender/shape/Text"),a=e("../layout/WordCloud");e("../component/grid"),e("../component/dataRange");var o=e("../config"),r=e("../util/ecData"),s=e("zrender/tool/util"),l=e("zrender/tool/color");return o.wordCloud={zlevel:0,z:2,clickable:!0,center:["50%","50%"],size:["40%","40%"],textRotation:[0,90],textPadding:0,autoSize:{enable:!0,minSize:12},itemStyle:{normal:{textStyle:{fontSize:function(e){return e.value}}}}},t.prototype={type:o.CHART_TYPE_WORDCLOUD,refresh:function(e){e&&(this.option=e,this.series=e.series),this._init()},_init:function(){var e=this.series;this.backupShapeList();for(var t=this.component.legend,i=0;i<e.length;i++)if(e[i].type===o.CHART_TYPE_WORDCLOUD){e[i]=this.reformOption(e[i]);var n=e[i].name||"";if(this.selectedMap[n]=t?t.isSelected(n):!0,!this.selectedMap[n])continue;this.buildMark(i),this._initSerie(e[i])}},_initSerie:function(e){var t=e.itemStyle.normal.textStyle,i=[this.parsePercent(e.size[0],this.zr.getWidth())||200,this.parsePercent(e.size[1],this.zr.getHeight())||200],n=this.parseCenter(this.zr,e.center),o={size:i,wordletype:{autoSizeCal:e.autoSize},center:n,rotate:e.textRotation,padding:e.textPadding,font:t.fontFamily,fontSize:t.fontSize,fontWeight:t.fontWeight,fontStyle:t.fontStyle,text:function(e){return e.name},data:e.data},r=new a(o),s=this;r.end(function(e){s._buildShapes(e)}),r.start()},_buildShapes:function(e){for(var t=e.length,i=0;t>i;i++)this._buildTextShape(e[i],0,i);this.addShapeList()},_buildTextShape:function(e,t,i){var a=this.series,o=a[t],s=o.name||"",h=o.data[i],m=[h,o],V=this.component.legend,d=V?V.getColor(s):this.zr.getColor(t),U=this.deepMerge(m,"itemStyle.normal")||{},p=this.deepMerge(m,"itemStyle.emphasis")||{},c=this.getItemStyleColor(U.color,t,i,h)||d,u=this.getItemStyleColor(p.color,t,i,h)||("string"==typeof c?l.lift(c,-.2):c),g=new n({zlevel:o.zlevel,z:o.z,hoverable:!0,clickable:this.deepQuery(m,"clickable"),style:{x:0,y:0,text:e.text,color:c,textFont:[e.style,e.weight,e.size+"px",e.font].join(" "),textBaseline:"alphabetic",textAlign:"center"},highlightStyle:{brushType:p.borderWidth?"both":"fill",color:u,lineWidth:p.borderWidth||0,strokeColor:p.borderColor},position:[e.x,e.y],rotation:[-e.rotate/180*Math.PI,0,0]});r.pack(g,o,t,h,i,h.name),this.shapeList.push(g)}},s.inherits(t,i),e("../chart").define("wordCloud",t),t}),define("echarts/layout/WordCloud",["require","../layout/WordCloudRectZero","zrender/tool/util"],function(e){function t(e){this._init(e)}var i=e("../layout/WordCloudRectZero"),n=e("zrender/tool/util");return t.prototype={start:function(){function e(){p.totalArea=r,d.autoSizeCal.enable&&p._autoCalTextSize(m,r,a,o,d.autoSizeCal.minSize),V.timer&&clearInterval(V.timer),V.timer=setInterval(t,0),t()}function t(){for(var e,t=+new Date,i=m.length;+new Date-t<V.timeInterval&&++s<i&&V.timer;)e=m[s],e.x=U[0]>>1,e.y=U[1]>>1,p._cloudSprite(e,m,s),e.hasText&&p._place(n,e,h)&&(l.push(e),e.x-=U[0]>>1,e.y-=U[1]>>1);s>=i&&(p.stop(),p._fixTagPosition(l),V.endcallback(l))}var n=null,a=0,o=0,r=0,s=-1,l=[],h=null,m=this.wordsdata,V=this.defaultOption,d=V.wordletype,U=V.size,p=this,c=new i({type:d.type,width:U[0],height:U[1]});return c.calculate(function(t){n=t.initarr,a=t.maxWit,o=t.maxHit,r=t.area,h=t.imgboard,e()},this),this},_fixTagPosition:function(e){for(var t=this.defaultOption.center,i=0,n=e.length;n>i;i++)e[i].x+=t[0],e[i].y+=t[1]},stop:function(){return this.defaultOption.timer&&(clearInterval(this.defaultOption.timer),this.defaultOption.timer=null),this},end:function(e){return e&&(this.defaultOption.endcallback=e),this},_init:function(e){this.defaultOption={},this._initProperty(e),this._initMethod(e),this._initCanvas(),this._initData(e.data)},_initData:function(e){var t=this,i=t.defaultOption;this.wordsdata=e.map(function(e,n){return e.text=i.text.call(t,e,n),e.font=i.font.call(t,e,n),e.style=i.fontStyle.call(t,e,n),e.weight=i.fontWeight.call(t,e,n),e.rotate=i.rotate.call(t,e,n),e.size=~~i.fontSize.call(t,e,n),e.padding=i.padding.call(t,e,n),e}).sort(function(e,t){return t.value-e.value})},_initMethod:function(e){function t(e){return e.name}function i(){return"sans-serif"}function n(){return"normal"}function a(e){return e.value}function o(){return 0}function r(e){return function(){return e[Math.round(Math.random()*(e.length-1))]}}function s(){return 0}function l(e){var t=e[0]/e[1];return function(e){return[t*(e*=.1)*Math.cos(e),e*Math.sin(e)]}}function h(e){var t=4,i=t*e[0]/e[1],n=0,a=0;return function(e){var o=0>e?-1:1;switch(Math.sqrt(1+4*o*e)-o&3){case 0:n+=i;break;case 1:a+=t;break;case 2:n-=i;break;default:a-=t}return[n,a]}}function m(e){return"function"==typeof e?e:function(){return e}}var V=this.defaultOption;V.text=e.text?m(e.text):t,V.font=e.font?m(e.font):i,V.fontSize=e.fontSize?m(e.fontSize):a,V.fontStyle=e.fontStyle?m(e.fontStyle):n,V.fontWeight=e.fontWeight?m(e.fontWeight):n,V.rotate=e.rotate?r(e.rotate):o,V.padding=e.padding?m(e.padding):s,V.center=e.center,V.spiral=l,V.endcallback=function(){},V.rectangularSpiral=h,V.archimedeanSpiral=l},_initProperty:function(e){var t=this.defaultOption;t.size=e.size||[256,256],t.wordletype=e.wordletype,t.words=e.words||[],t.timeInterval=1/0,t.timer=null,t.spirals={archimedean:t.archimedeanSpiral,rectangular:t.rectangularSpiral},n.merge(t,{size:[256,256],wordletype:{type:"RECT",areaPresent:.058,autoSizeCal:{enable:!0,minSize:12}}})},_initCanvas:function(){var e,t=Math.PI/180,i=64,n=2048,a=1;"undefined"!=typeof document?(e=document.createElement("canvas"),e.width=1,e.height=1,a=Math.sqrt(e.getContext("2d").getImageData(0,0,1,1).data.length>>2),e.width=(i<<5)/a,e.height=n/a):e=new Canvas(i<<5,n);var o=e.getContext("2d");o.fillStyle=o.strokeStyle="red",o.textAlign="center",this.defaultOption.c=o,this.defaultOption.cw=i,this.defaultOption.ch=n,this.defaultOption.ratio=a,this.defaultOption.cloudRadians=t},_cloudSprite:function(e,t,i){if(!e.sprite){var n=this.defaultOption.cw,a=this.defaultOption.ch,o=this.defaultOption.c,r=this.defaultOption.ratio,s=this.defaultOption.cloudRadians;o.clearRect(0,0,(n<<5)/r,a/r);var l=0,h=0,m=0,V=t.length;for(--i;++i<V;){e=t[i],o.save(),o.font=e.style+" "+e.weight+" "+~~((e.size+1)/r)+"px "+e.font;var d=o.measureText(e.text+"m").width*r,U=e.size<<1;if(e.rotate){var p=Math.sin(e.rotate*s),c=Math.cos(e.rotate*s),u=d*c,g=d*p,y=U*c,b=U*p;d=Math.max(Math.abs(u+b),Math.abs(u-b))+31>>5<<5,U=~~Math.max(Math.abs(g+y),Math.abs(g-y))}else d=d+31>>5<<5;if(U>m&&(m=U),l+d>=n<<5&&(l=0,h+=m,m=0),h+U>=a)break;o.translate((l+(d>>1))/r,(h+(U>>1))/r),e.rotate&&o.rotate(e.rotate*s),o.fillText(e.text,0,0),e.padding&&(o.lineWidth=2*e.padding,o.strokeText(e.text,0,0)),o.restore(),e.width=d,e.height=U,e.xoff=l,e.yoff=h,e.x1=d>>1,e.y1=U>>1,e.x0=-e.x1,e.y0=-e.y1,e.hasText=!0,l+=d}for(var f=o.getImageData(0,0,(n<<5)/r,a/r).data,k=[];--i>=0;)if(e=t[i],e.hasText){for(var d=e.width,_=d>>5,U=e.y1-e.y0,x=0;U*_>x;x++)k[x]=0;if(l=e.xoff,null==l)return;h=e.yoff;for(var L=0,W=-1,X=0;U>X;X++){for(var x=0;d>x;x++){var v=_*X+(x>>5),w=f[(h+X)*(n<<5)+(l+x)<<2]?1<<31-x%32:0;k[v]|=w,L|=w}L?W=X:(e.y0++,U--,X--,h++)}e.y1=e.y0+W,e.sprite=k.slice(0,(e.y1-e.y0)*_)}}},_place:function(e,t,i){function n(e,t,i){i>>=5;for(var n,a=e.sprite,o=e.width>>5,r=e.x-(o<<4),s=127&r,l=32-s,h=e.y1-e.y0,m=(e.y+e.y0)*i+(r>>5),V=0;h>V;V++){n=0;for(var d=0;o>=d;d++)if((n<<l|(o>d?(n=a[V*o+d])>>>s:0))&t[m+d])return!0;m+=i}return!1}function a(e,t){return t.row[e.y]&&t.cloumn[e.x]&&e.x>=t.row[e.y].start&&e.x<=t.row[e.y].end&&e.y>=t.cloumn[e.x].start&&e.y<=t.cloumn[e.x].end}for(var o,r,s,l=this.defaultOption.size,h=([{x:0,y:0},{x:l[0],y:l[1]}],t.x),m=t.y,V=Math.sqrt(l[0]*l[0]+l[1]*l[1]),d=this.defaultOption.spiral(l),U=Math.random()<.5?1:-1,p=-U;(o=d(p+=U))&&(r=~~o[0],s=~~o[1],!(Math.min(r,s)>V));)if(t.x=h+r,t.y=m+s,!(t.x+t.x0<0||t.y+t.y0<0||t.x+t.x1>l[0]||t.y+t.y1>l[1])&&!n(t,e,l[0])&&a(t,i)){for(var c,u=t.sprite,g=t.width>>5,y=l[0]>>5,b=t.x-(g<<4),f=127&b,k=32-f,_=t.y1-t.y0,x=(t.y+t.y0)*y+(b>>5),L=0;_>L;L++){c=0;for(var W=0;g>=W;W++)e[x+W]|=c<<k|(g>W?(c=u[L*g+W])>>>f:0);x+=y}return delete t.sprite,!0}return!1},_autoCalTextSize:function(e,t,i,n,a){function o(e){c.clearRect(0,0,(U<<5)/u,p/u),c.save(),c.font=e.style+" "+e.weight+" "+~~((e.size+1)/u)+"px "+e.font;var t=c.measureText(e.text+"m").width*u,r=e.size<<1;t=t+31>>5<<5,c.restore(),e.aw=t,e.ah=r;var s,l,h;if(e.rotate){var m=Math.sin(e.rotate*g),V=Math.cos(e.rotate*g),y=t*V,b=t*m,f=r*V,k=r*m;l=Math.max(Math.abs(y+k),Math.abs(y-k))+31>>5<<5,h=~~Math.max(Math.abs(b+f),Math.abs(b-f))}return e.size<=d||e.rotate&&t*r<=e.area&&i>=l&&n>=h||t*r<=e.area&&i>=t&&n>=r?void(e.area=t*r):(s=e.rotate&&l>i&&h>n?Math.min(i/l,n/h):t>i||r>n?Math.min(i/t,n/r):Math.sqrt(e.area/(e.aw*e.ah)),e.size=~~(s*e.size),e.size<a?void(e.size=a):o(e))}function r(e,t){for(var i=e.length,n=0;i--;)n+=t(e[i]);return n}for(var s,l,h=r(e,function(e){return e.size}),m=e.length,V=.25,d=a,U=this.defaultOption.cw,p=this.defaultOption.ch,c=this.defaultOption.c,u=this.defaultOption.ratio,g=this.defaultOption.cloudRadians;m--;)s=e[m],l=s.size/h,s.areapre=V?V>l?l:V:l,s.area=t*s.areapre,s.totalarea=t,o(s)}},t}),define("echarts/component/dataRange",["require","./base","zrender/shape/Text","zrender/shape/Rectangle","../util/shape/HandlePolygon","../config","zrender/tool/util","zrender/tool/event","zrender/tool/area","zrender/tool/color","../component"],function(e){function t(e,t,n,a,o){i.call(this,e,t,n,a,o);var s=this;s._ondrift=function(e,t){return s.__ondrift(this,e,t)},s._ondragend=function(){return s.__ondragend()},s._dataRangeSelected=function(e){return s.__dataRangeSelected(e)},s._dispatchHoverLink=function(e){return s.__dispatchHoverLink(e)},s._onhoverlink=function(e){return s.__onhoverlink(e)},this._selectedMap={},this._range={},this.refresh(a),t.bind(r.EVENT.HOVER,this._onhoverlink)}var i=e("./base"),n=e("zrender/shape/Text"),a=e("zrender/shape/Rectangle"),o=e("../util/shape/HandlePolygon"),r=e("../config");r.dataRange={zlevel:0,z:4,show:!0,orient:"vertical",x:"left",y:"bottom",backgroundColor:"rgba(0,0,0,0)",borderColor:"#ccc",borderWidth:0,padding:5,itemGap:10,itemWidth:20,itemHeight:14,precision:0,splitNumber:5,splitList:null,calculable:!1,selectedMode:!0,hoverLink:!0,realtime:!0,color:["#006edd","#e0ffff"],textStyle:{color:"#333"}};var s=e("zrender/tool/util"),l=e("zrender/tool/event"),h=e("zrender/tool/area"),m=e("zrender/tool/color");return t.prototype={type:r.COMPONENT_TYPE_DATARANGE,_textGap:10,_buildShape:function(){if(this._itemGroupLocation=this._getItemGroupLocation(),this._buildBackground(),this._isContinuity()?this._buildGradient():this._buildItem(),this.dataRangeOption.show)for(var e=0,t=this.shapeList.length;t>e;e++)this.zr.addShape(this.shapeList[e]);this._syncShapeFromRange()},_buildItem:function(){var e,t,i,o,r=this._valueTextList,s=r.length,l=this.getFont(this.dataRangeOption.textStyle),m=this._itemGroupLocation.x,V=this._itemGroupLocation.y,d=this.dataRangeOption.itemWidth,U=this.dataRangeOption.itemHeight,p=this.dataRangeOption.itemGap,c=h.getTextHeight("国",l);"vertical"==this.dataRangeOption.orient&&"right"==this.dataRangeOption.x&&(m=this._itemGroupLocation.x+this._itemGroupLocation.width-d);var u=!0;this.dataRangeOption.text&&(u=!1,this.dataRangeOption.text[0]&&(i=this._getTextShape(m,V,this.dataRangeOption.text[0]),"horizontal"==this.dataRangeOption.orient?m+=h.getTextWidth(this.dataRangeOption.text[0],l)+this._textGap:(V+=c+this._textGap,i.style.y+=c/2+this._textGap,i.style.textBaseline="bottom"),this.shapeList.push(new n(i))));for(var g=0;s>g;g++)e=r[g],o=this.getColorByIndex(g),t=this._getItemShape(m,V,d,U,this._selectedMap[g]?o:"#ccc"),t._idx=g,t.onmousemove=this._dispatchHoverLink,this.dataRangeOption.selectedMode&&(t.clickable=!0,t.onclick=this._dataRangeSelected),this.shapeList.push(new a(t)),u&&(i={zlevel:this.getZlevelBase(),z:this.getZBase(),style:{x:m+d+5,y:V,color:this._selectedMap[g]?this.dataRangeOption.textStyle.color:"#ccc",text:r[g],textFont:l,textBaseline:"top"},highlightStyle:{brushType:"fill"}},"vertical"==this.dataRangeOption.orient&&"right"==this.dataRangeOption.x&&(i.style.x-=d+10,i.style.textAlign="right"),i._idx=g,i.onmousemove=this._dispatchHoverLink,this.dataRangeOption.selectedMode&&(i.clickable=!0,i.onclick=this._dataRangeSelected),this.shapeList.push(new n(i))),"horizontal"==this.dataRangeOption.orient?m+=d+(u?5:0)+(u?h.getTextWidth(e,l):0)+p:V+=U+p;!u&&this.dataRangeOption.text[1]&&("horizontal"==this.dataRangeOption.orient?m=m-p+this._textGap:V=V-p+this._textGap,i=this._getTextShape(m,V,this.dataRangeOption.text[1]),"horizontal"!=this.dataRangeOption.orient&&(i.style.y-=5,i.style.textBaseline="top"),this.shapeList.push(new n(i)))},_buildGradient:function(){var t,i,o=this.getFont(this.dataRangeOption.textStyle),r=this._itemGroupLocation.x,s=this._itemGroupLocation.y,l=this.dataRangeOption.itemWidth,m=this.dataRangeOption.itemHeight,V=h.getTextHeight("国",o),d=10,U=!0;this.dataRangeOption.text&&(U=!1,this.dataRangeOption.text[0]&&(i=this._getTextShape(r,s,this.dataRangeOption.text[0]),"horizontal"==this.dataRangeOption.orient?r+=h.getTextWidth(this.dataRangeOption.text[0],o)+this._textGap:(s+=V+this._textGap,i.style.y+=V/2+this._textGap,i.style.textBaseline="bottom"),this.shapeList.push(new n(i))));for(var p=e("zrender/tool/color"),c=1/(this.dataRangeOption.color.length-1),u=[],g=0,y=this.dataRangeOption.color.length;y>g;g++)u.push([g*c,this.dataRangeOption.color[g]]);"horizontal"==this.dataRangeOption.orient?(t={zlevel:this.getZlevelBase(),z:this.getZBase(),style:{x:r,y:s,width:l*d,height:m,color:p.getLinearGradient(r,s,r+l*d,s,u)},hoverable:!1},r+=l*d+this._textGap):(t={zlevel:this.getZlevelBase(),z:this.getZBase(),style:{x:r,y:s,width:l,height:m*d,color:p.getLinearGradient(r,s,r,s+m*d,u)},hoverable:!1},s+=m*d+this._textGap),this.shapeList.push(new a(t)),this._calculableLocation=t.style,this.dataRangeOption.calculable&&(this._buildFiller(),this._bulidMask(),this._bulidHandle()),this._buildIndicator(),!U&&this.dataRangeOption.text[1]&&(i=this._getTextShape(r,s,this.dataRangeOption.text[1]),this.shapeList.push(new n(i)))},_buildIndicator:function(){var e,t,i=this._calculableLocation.x,n=this._calculableLocation.y,a=this._calculableLocation.width,r=this._calculableLocation.height,s=5;"horizontal"==this.dataRangeOption.orient?"bottom"!=this.dataRangeOption.y?(e=[[i,n+r],[i-s,n+r+s],[i+s,n+r+s]],t="bottom"):(e=[[i,n],[i-s,n-s],[i+s,n-s]],t="top"):"right"!=this.dataRangeOption.x?(e=[[i+a,n],[i+a+s,n-s],[i+a+s,n+s]],t="right"):(e=[[i,n],[i-s,n-s],[i-s,n+s]],t="left"),this._indicatorShape={style:{pointList:e,color:"#fff",__rect:{x:Math.min(e[0][0],e[1][0]),y:Math.min(e[0][1],e[1][1]),width:s*("horizontal"==this.dataRangeOption.orient?2:1),height:s*("horizontal"==this.dataRangeOption.orient?1:2)}},highlightStyle:{brushType:"fill",textPosition:t,textColor:this.dataRangeOption.textStyle.color},hoverable:!1},this._indicatorShape=new o(this._indicatorShape)},_buildFiller:function(){this._fillerShape={zlevel:this.getZlevelBase(),z:this.getZBase()+1,style:{x:this._calculableLocation.x,y:this._calculableLocation.y,width:this._calculableLocation.width,height:this._calculableLocation.height,color:"rgba(255,255,255,0)"},highlightStyle:{strokeColor:"rgba(255,255,255,0.5)",lineWidth:1},draggable:!0,ondrift:this._ondrift,ondragend:this._ondragend,onmousemove:this._dispatchHoverLink,_type:"filler"},this._fillerShape=new a(this._fillerShape),this.shapeList.push(this._fillerShape)},_bulidHandle:function(){var e,t,i,n,a,r,s,l,m=this._calculableLocation.x,V=this._calculableLocation.y,d=this._calculableLocation.width,U=this._calculableLocation.height,p=this.getFont(this.dataRangeOption.textStyle),c=h.getTextHeight("国",p),u=Math.max(h.getTextWidth(this._textFormat(this.dataRangeOption.max),p),h.getTextWidth(this._textFormat(this.dataRangeOption.min),p))+2;"horizontal"==this.dataRangeOption.orient?"bottom"!=this.dataRangeOption.y?(e=[[m,V],[m,V+U+c],[m-c,V+U+c],[m-1,V+U],[m-1,V]],t=m-u/2-c,i=V+U+c/2+2,n={x:m-u-c,y:V+U,width:u+c,height:c},a=[[m+d,V],[m+d,V+U+c],[m+d+c,V+U+c],[m+d+1,V+U],[m+d+1,V]],r=m+d+u/2+c,s=i,l={x:m+d,y:V+U,width:u+c,height:c}):(e=[[m,V+U],[m,V-c],[m-c,V-c],[m-1,V],[m-1,V+U]],t=m-u/2-c,i=V-c/2-2,n={x:m-u-c,y:V-c,width:u+c,height:c},a=[[m+d,V+U],[m+d,V-c],[m+d+c,V-c],[m+d+1,V],[m+d+1,V+U]],r=m+d+u/2+c,s=i,l={x:m+d,y:V-c,width:u+c,height:c}):(u+=c,"right"!=this.dataRangeOption.x?(e=[[m,V],[m+d+c,V],[m+d+c,V-c],[m+d,V-1],[m,V-1]],t=m+d+u/2+c/2,i=V-c/2,n={x:m+d,y:V-c,width:u+c,height:c},a=[[m,V+U],[m+d+c,V+U],[m+d+c,V+c+U],[m+d,V+1+U],[m,V+U+1]],r=t,s=V+U+c/2,l={x:m+d,y:V+U,width:u+c,height:c}):(e=[[m+d,V],[m-c,V],[m-c,V-c],[m,V-1],[m+d,V-1]],t=m-u/2-c/2,i=V-c/2,n={x:m-u-c,y:V-c,width:u+c,height:c},a=[[m+d,V+U],[m-c,V+U],[m-c,V+c+U],[m,V+1+U],[m+d,V+U+1]],r=t,s=V+U+c/2,l={x:m-u-c,y:V+U,width:u+c,height:c})),this._startShape={style:{pointList:e,text:this._textFormat(this.dataRangeOption.max),textX:t,textY:i,textFont:p,color:this.getColor(this.dataRangeOption.max),rect:n,x:e[0][0],y:e[0][1],_x:e[0][0],_y:e[0][1]}},this._startShape.highlightStyle={strokeColor:this._startShape.style.color,lineWidth:1},this._endShape={style:{pointList:a,text:this._textFormat(this.dataRangeOption.min),textX:r,textY:s,textFont:p,color:this.getColor(this.dataRangeOption.min),rect:l,x:a[0][0],y:a[0][1],_x:a[0][0],_y:a[0][1]}},this._endShape.highlightStyle={strokeColor:this._endShape.style.color,lineWidth:1},this._startShape.zlevel=this._endShape.zlevel=this.getZlevelBase(),this._startShape.z=this._endShape.z=this.getZBase()+1,this._startShape.draggable=this._endShape.draggable=!0,this._startShape.ondrift=this._endShape.ondrift=this._ondrift,this._startShape.ondragend=this._endShape.ondragend=this._ondragend,this._startShape.style.textColor=this._endShape.style.textColor=this.dataRangeOption.textStyle.color,this._startShape.style.textAlign=this._endShape.style.textAlign="center",this._startShape.style.textPosition=this._endShape.style.textPosition="specific",this._startShape.style.textBaseline=this._endShape.style.textBaseline="middle",this._startShape.style.width=this._endShape.style.width=0,this._startShape.style.height=this._endShape.style.height=0,this._startShape.style.textPosition=this._endShape.style.textPosition="specific",this._startShape=new o(this._startShape),this._endShape=new o(this._endShape),this.shapeList.push(this._startShape),this.shapeList.push(this._endShape)},_bulidMask:function(){var e=this._calculableLocation.x,t=this._calculableLocation.y,i=this._calculableLocation.width,n=this._calculableLocation.height;this._startMask={zlevel:this.getZlevelBase(),z:this.getZBase()+1,style:{x:e,y:t,width:"horizontal"==this.dataRangeOption.orient?0:i,height:"horizontal"==this.dataRangeOption.orient?n:0,color:"#ccc"},hoverable:!1},this._endMask={zlevel:this.getZlevelBase(),z:this.getZBase()+1,style:{x:"horizontal"==this.dataRangeOption.orient?e+i:e,y:"horizontal"==this.dataRangeOption.orient?t:t+n,width:"horizontal"==this.dataRangeOption.orient?0:i,height:"horizontal"==this.dataRangeOption.orient?n:0,color:"#ccc"},hoverable:!1},this._startMask=new a(this._startMask),this._endMask=new a(this._endMask),this.shapeList.push(this._startMask),this.shapeList.push(this._endMask)},_buildBackground:function(){var e=this.reformCssArray(this.dataRangeOption.padding);this.shapeList.push(new a({zlevel:this.getZlevelBase(),z:this.getZBase(),hoverable:!1,style:{x:this._itemGroupLocation.x-e[3],y:this._itemGroupLocation.y-e[0],width:this._itemGroupLocation.width+e[3]+e[1],height:this._itemGroupLocation.height+e[0]+e[2],brushType:0===this.dataRangeOption.borderWidth?"fill":"both",color:this.dataRangeOption.backgroundColor,strokeColor:this.dataRangeOption.borderColor,lineWidth:this.dataRangeOption.borderWidth}}))},_getItemGroupLocation:function(){var e=this._valueTextList,t=e.length,i=this.dataRangeOption.itemGap,n=this.dataRangeOption.itemWidth,a=this.dataRangeOption.itemHeight,o=0,r=0,s=this.getFont(this.dataRangeOption.textStyle),l=h.getTextHeight("国",s),m=10;if("horizontal"==this.dataRangeOption.orient){if(this.dataRangeOption.text||this._isContinuity())o=(this._isContinuity()?n*m+i:t*(n+i))+(this.dataRangeOption.text&&"undefined"!=typeof this.dataRangeOption.text[0]?h.getTextWidth(this.dataRangeOption.text[0],s)+this._textGap:0)+(this.dataRangeOption.text&&"undefined"!=typeof this.dataRangeOption.text[1]?h.getTextWidth(this.dataRangeOption.text[1],s)+this._textGap:0);else{n+=5;for(var V=0;t>V;V++)o+=n+h.getTextWidth(e[V],s)+i}o-=i,r=Math.max(l,a)}else{var d;if(this.dataRangeOption.text||this._isContinuity())r=(this._isContinuity()?a*m+i:t*(a+i))+(this.dataRangeOption.text&&"undefined"!=typeof this.dataRangeOption.text[0]?this._textGap+l:0)+(this.dataRangeOption.text&&"undefined"!=typeof this.dataRangeOption.text[1]?this._textGap+l:0),d=Math.max(h.getTextWidth(this.dataRangeOption.text&&this.dataRangeOption.text[0]||"",s),h.getTextWidth(this.dataRangeOption.text&&this.dataRangeOption.text[1]||"",s)),o=Math.max(n,d);else{r=(a+i)*t,n+=5,d=0;for(var V=0;t>V;V++)d=Math.max(d,h.getTextWidth(e[V],s));o=n+d}r-=i}var U,p=this.reformCssArray(this.dataRangeOption.padding),c=this.zr.getWidth();switch(this.dataRangeOption.x){case"center":U=Math.floor((c-o)/2);break;case"left":U=p[3]+this.dataRangeOption.borderWidth;break;case"right":U=c-o-p[1]-this.dataRangeOption.borderWidth;break;default:U=this.parsePercent(this.dataRangeOption.x,c),U=isNaN(U)?0:U}var u,g=this.zr.getHeight();switch(this.dataRangeOption.y){case"top":u=p[0]+this.dataRangeOption.borderWidth;break;case"bottom":u=g-r-p[2]-this.dataRangeOption.borderWidth;break;case"center":u=Math.floor((g-r)/2);break;default:u=this.parsePercent(this.dataRangeOption.y,g),u=isNaN(u)?0:u}if(this.dataRangeOption.calculable){var y=Math.max(h.getTextWidth(this.dataRangeOption.max,s),h.getTextWidth(this.dataRangeOption.min,s))+l;"horizontal"==this.dataRangeOption.orient?(y>U&&(U=y),U+o+y>c&&(U-=y)):(l>u&&(u=l),u+r+l>g&&(u-=l))}return{x:U,y:u,width:o,height:r}},_getTextShape:function(e,t,i){return{zlevel:this.getZlevelBase(),z:this.getZBase(),style:{x:"horizontal"==this.dataRangeOption.orient?e:this._itemGroupLocation.x+this._itemGroupLocation.width/2,y:"horizontal"==this.dataRangeOption.orient?this._itemGroupLocation.y+this._itemGroupLocation.height/2:t,color:this.dataRangeOption.textStyle.color,text:i,textFont:this.getFont(this.dataRangeOption.textStyle),textBaseline:"horizontal"==this.dataRangeOption.orient?"middle":"top",textAlign:"horizontal"==this.dataRangeOption.orient?"left":"center"},hoverable:!1}},_getItemShape:function(e,t,i,n,a){return{zlevel:this.getZlevelBase(),z:this.getZBase(),style:{x:e,y:t+1,width:i,height:n-2,color:a},highlightStyle:{strokeColor:a,lineWidth:1}}},__ondrift:function(e,t,i){var n=this._calculableLocation.x,a=this._calculableLocation.y,o=this._calculableLocation.width,r=this._calculableLocation.height;return"horizontal"==this.dataRangeOption.orient?e.style.x+t<=n?e.style.x=n:e.style.x+t+e.style.width>=n+o?e.style.x=n+o-e.style.width:e.style.x+=t:e.style.y+i<=a?e.style.y=a:e.style.y+i+e.style.height>=a+r?e.style.y=a+r-e.style.height:e.style.y+=i,"filler"==e._type?this._syncHandleShape():this._syncFillerShape(e),this.dataRangeOption.realtime&&this._dispatchDataRange(),!0},__ondragend:function(){this.isDragend=!0},ondragend:function(e,t){this.isDragend&&e.target&&(t.dragOut=!0,t.dragIn=!0,this.dataRangeOption.realtime||this._dispatchDataRange(),t.needRefresh=!1,this.isDragend=!1)},_syncShapeFromRange:function(){var e=this.dataRangeOption.range||{},t=e.start,i=e.end;if(t>i&&(t=[i,i=t][0]),this._range.end=null!=t?t:null!=this._range.end?this._range.end:0,this._range.start=null!=i?i:null!=this._range.start?this._range.start:100,100!=this._range.start||0!==this._range.end){if("horizontal"==this.dataRangeOption.orient){var n=this._fillerShape.style.width;this._fillerShape.style.x+=n*(100-this._range.start)/100,this._fillerShape.style.width=n*(this._range.start-this._range.end)/100}else{var a=this._fillerShape.style.height;this._fillerShape.style.y+=a*(100-this._range.start)/100,this._fillerShape.style.height=a*(this._range.start-this._range.end)/100}this.zr.modShape(this._fillerShape.id),this._syncHandleShape()}},_syncHandleShape:function(){var e=this._calculableLocation.x,t=this._calculableLocation.y,i=this._calculableLocation.width,n=this._calculableLocation.height;"horizontal"==this.dataRangeOption.orient?(this._startShape.style.x=this._fillerShape.style.x,this._startMask.style.width=this._startShape.style.x-e,this._endShape.style.x=this._fillerShape.style.x+this._fillerShape.style.width,this._endMask.style.x=this._endShape.style.x,this._endMask.style.width=e+i-this._endShape.style.x,this._range.start=Math.ceil(100-(this._startShape.style.x-e)/i*100),this._range.end=Math.floor(100-(this._endShape.style.x-e)/i*100)):(this._startShape.style.y=this._fillerShape.style.y,this._startMask.style.height=this._startShape.style.y-t,this._endShape.style.y=this._fillerShape.style.y+this._fillerShape.style.height,this._endMask.style.y=this._endShape.style.y,this._endMask.style.height=t+n-this._endShape.style.y,this._range.start=Math.ceil(100-(this._startShape.style.y-t)/n*100),this._range.end=Math.floor(100-(this._endShape.style.y-t)/n*100)),this._syncShape()},_syncFillerShape:function(e){var t,i,n=this._calculableLocation.x,a=this._calculableLocation.y,o=this._calculableLocation.width,r=this._calculableLocation.height;"horizontal"==this.dataRangeOption.orient?(t=this._startShape.style.x,i=this._endShape.style.x,e.id==this._startShape.id&&t>=i?(i=t,this._endShape.style.x=t):e.id==this._endShape.id&&t>=i&&(t=i,this._startShape.style.x=t),this._fillerShape.style.x=t,this._fillerShape.style.width=i-t,this._startMask.style.width=t-n,this._endMask.style.x=i,this._endMask.style.width=n+o-i,this._range.start=Math.ceil(100-(t-n)/o*100),this._range.end=Math.floor(100-(i-n)/o*100)):(t=this._startShape.style.y,i=this._endShape.style.y,e.id==this._startShape.id&&t>=i?(i=t,this._endShape.style.y=t):e.id==this._endShape.id&&t>=i&&(t=i,this._startShape.style.y=t),this._fillerShape.style.y=t,this._fillerShape.style.height=i-t,this._startMask.style.height=t-a,this._endMask.style.y=i,this._endMask.style.height=a+r-i,this._range.start=Math.ceil(100-(t-a)/r*100),this._range.end=Math.floor(100-(i-a)/r*100)),this._syncShape()},_syncShape:function(){this._startShape.position=[this._startShape.style.x-this._startShape.style._x,this._startShape.style.y-this._startShape.style._y],this._startShape.style.text=this._textFormat(this._gap*this._range.start+this.dataRangeOption.min),this._startShape.style.color=this._startShape.highlightStyle.strokeColor=this.getColor(this._gap*this._range.start+this.dataRangeOption.min),this._endShape.position=[this._endShape.style.x-this._endShape.style._x,this._endShape.style.y-this._endShape.style._y],this._endShape.style.text=this._textFormat(this._gap*this._range.end+this.dataRangeOption.min),this._endShape.style.color=this._endShape.highlightStyle.strokeColor=this.getColor(this._gap*this._range.end+this.dataRangeOption.min),this.zr.modShape(this._startShape.id),this.zr.modShape(this._endShape.id),this.zr.modShape(this._startMask.id),this.zr.modShape(this._endMask.id),this.zr.modShape(this._fillerShape.id),this.zr.refreshNextFrame()},_dispatchDataRange:function(){this.messageCenter.dispatch(r.EVENT.DATA_RANGE,null,{range:{start:this._range.end,end:this._range.start}},this.myChart)},__dataRangeSelected:function(e){if("single"===this.dataRangeOption.selectedMode)for(var t in this._selectedMap)this._selectedMap[t]=!1;var i=e.target._idx;this._selectedMap[i]=!this._selectedMap[i];var n,a;this._useCustomizedSplit()?(n=this._splitList[i].max,a=this._splitList[i].min):(n=(this._colorList.length-i)*this._gap+this.dataRangeOption.min,a=n-this._gap),this.messageCenter.dispatch(r.EVENT.DATA_RANGE_SELECTED,e.event,{selected:this._selectedMap,target:i,valueMax:n,valueMin:a},this.myChart),this.messageCenter.dispatch(r.EVENT.REFRESH,null,null,this.myChart)},__dispatchHoverLink:function(e){var t,i;if(this.dataRangeOption.calculable){var n,a=this.dataRangeOption.max-this.dataRangeOption.min;n="horizontal"==this.dataRangeOption.orient?(1-(l.getX(e.event)-this._calculableLocation.x)/this._calculableLocation.width)*a:(1-(l.getY(e.event)-this._calculableLocation.y)/this._calculableLocation.height)*a,t=n-.05*a,i=n+.05*a}else if(this._useCustomizedSplit()){var o=e.target._idx;i=this._splitList[o].max,t=this._splitList[o].min}else{var o=e.target._idx;i=(this._colorList.length-o)*this._gap+this.dataRangeOption.min,t=i-this._gap}this.messageCenter.dispatch(r.EVENT.DATA_RANGE_HOVERLINK,e.event,{valueMin:t,valueMax:i},this.myChart)},__onhoverlink:function(e){if(this.dataRangeOption.show&&this.dataRangeOption.hoverLink&&this._indicatorShape&&e&&null!=e.seriesIndex&&null!=e.dataIndex){var t=e.value;if(""===t||isNaN(t))return;t<this.dataRangeOption.min?t=this.dataRangeOption.min:t>this.dataRangeOption.max&&(t=this.dataRangeOption.max),this._indicatorShape.position="horizontal"==this.dataRangeOption.orient?[(this.dataRangeOption.max-t)/(this.dataRangeOption.max-this.dataRangeOption.min)*this._calculableLocation.width,0]:[0,(this.dataRangeOption.max-t)/(this.dataRangeOption.max-this.dataRangeOption.min)*this._calculableLocation.height],this._indicatorShape.style.text=this._textFormat(e.value),this._indicatorShape.style.color=this.getColor(t),this.zr.addHoverShape(this._indicatorShape)}},_textFormat:function(e,t){var i=this.dataRangeOption;if(e!==-Number.MAX_VALUE&&(e=(+e).toFixed(i.precision)),null!=t&&t!==Number.MAX_VALUE&&(t=(+t).toFixed(i.precision)),i.formatter){if("string"==typeof i.formatter)return i.formatter.replace("{value}",e===-Number.MAX_VALUE?"min":e).replace("{value2}",t===Number.MAX_VALUE?"max":t);if("function"==typeof i.formatter)return i.formatter.call(this.myChart,e,t)}return null==t?e:e===-Number.MAX_VALUE?"< "+t:t===Number.MAX_VALUE?"> "+e:e+" - "+t},_isContinuity:function(){var e=this.dataRangeOption;return!(e.splitList?e.splitList.length>0:e.splitNumber>0)||e.calculable},_useCustomizedSplit:function(){var e=this.dataRangeOption;return e.splitList&&e.splitList.length>0},_buildColorList:function(e){if(this._colorList=m.getGradientColors(this.dataRangeOption.color,Math.max((e-this.dataRangeOption.color.length)/(this.dataRangeOption.color.length-1),0)+1),this._colorList.length>e){for(var t=this._colorList.length,i=[this._colorList[0]],n=t/(e-1),a=1;e-1>a;a++)i.push(this._colorList[Math.floor(a*n)]);i.push(this._colorList[t-1]),this._colorList=i}if(this._useCustomizedSplit())for(var o=this._splitList,a=0,t=o.length;t>a;a++)o[a].color&&(this._colorList[a]=o[a].color)},_buildGap:function(e){if(!this._useCustomizedSplit()){var t=this.dataRangeOption.precision;for(this._gap=(this.dataRangeOption.max-this.dataRangeOption.min)/e;this._gap.toFixed(t)-0!=this._gap&&5>t;)t++;this.dataRangeOption.precision=t,this._gap=((this.dataRangeOption.max-this.dataRangeOption.min)/e).toFixed(t)-0}},_buildDataList:function(e){for(var t=this._valueTextList=[],i=this.dataRangeOption,n=this._useCustomizedSplit(),a=0;e>a;a++){this._selectedMap[a]=!0;var o="";if(n){var r=this._splitList[e-1-a];o=null!=r.label?r.label:null!=r.single?this._textFormat(r.single):this._textFormat(r.min,r.max)}else o=this._textFormat(a*this._gap+i.min,(a+1)*this._gap+i.min);t.unshift(o)}},_buildSplitList:function(){if(this._useCustomizedSplit())for(var e=this.dataRangeOption.splitList,t=this._splitList=[],i=0,n=e.length;n>i;i++){var a=e[i];if(!a||null==a.start&&null==a.end)throw new Error("Empty item exists in splitList!");var o={label:a.label,color:a.color};o.min=a.start,o.max=a.end,o.min>o.max&&(o.min=[o.max,o.max=o.min][0]),o.min===o.max&&(o.single=o.max),null==o.min&&(o.min=-Number.MAX_VALUE),null==o.max&&(o.max=Number.MAX_VALUE),
-t.push(o)}},refresh:function(e){if(e){this.option=e,this.option.dataRange=this.reformOption(this.option.dataRange);var t=this.dataRangeOption=this.option.dataRange;if(!this._useCustomizedSplit()&&(null==t.min||null==t.max))throw new Error("option.dataRange.min or option.dataRange.max has not been defined.");this.myChart.canvasSupported||(t.realtime=!1);var i=this._isContinuity()?100:this._useCustomizedSplit()?t.splitList.length:t.splitNumber;this._buildSplitList(),this._buildColorList(i),this._buildGap(i),this._buildDataList(i)}this.clear(),this._buildShape()},getColor:function(e){if(isNaN(e))return null;var t;if(this._useCustomizedSplit()){for(var i=this._splitList,n=0,a=i.length;a>n;n++)if(i[n].min<=e&&i[n].max>=e){t=n;break}}else{if(this.dataRangeOption.min==this.dataRangeOption.max)return this._colorList[0];if(e<this.dataRangeOption.min?e=this.dataRangeOption.min:e>this.dataRangeOption.max&&(e=this.dataRangeOption.max),this.dataRangeOption.calculable&&(e-(this._gap*this._range.start+this.dataRangeOption.min)>5e-5||e-(this._gap*this._range.end+this.dataRangeOption.min)<-5e-5))return null;t=this._colorList.length-Math.ceil((e-this.dataRangeOption.min)/(this.dataRangeOption.max-this.dataRangeOption.min)*this._colorList.length),t==this._colorList.length&&t--}return this._selectedMap[t]?this._colorList[t]:null},getColorByIndex:function(e){return e>=this._colorList.length?e=this._colorList.length-1:0>e&&(e=0),this._colorList[e]},onbeforDispose:function(){this.messageCenter.unbind(r.EVENT.HOVER,this._onhoverlink)}},s.inherits(t,i),e("../component").define("dataRange",t),t}),define("echarts/layout/WordCloudRectZero",["require"],function(){function e(e){this.defaultOption={type:"RECT"},this._init(e)}return e.prototype={RECT:"_calculateRect",_init:function(e){this._initOption(e),this._initCanvas()},_initOption:function(e){for(k in e)this.defaultOption[k]=e[k]},_initCanvas:function(){var e=document.createElement("canvas");e.width=1,e.height=1;var t=Math.sqrt(e.getContext("2d").getImageData(0,0,1,1).data.length>>2);if(e.width=this.defaultOption.width,e.height=this.defaultOption.height,e.getContext)var i=e.getContext("2d");this.canvas=e,this.ctx=i,this.ratio=t},calculate:function(e,t){var i=this.defaultOption.type,n=this[i];this[n].call(this,e,t)},_calculateReturn:function(e,t,i){t.call(i,e)},_calculateRect:function(e,t){var i={},n=this.defaultOption.width>>5<<5,a=this.defaultOption.height;i.initarr=this._rectZeroArray(n*a),i.area=n*a,i.maxHit=a,i.maxWit=n,i.imgboard=this._rectBoard(n,a),this._calculateReturn(i,e,t)},_rectBoard:function(e,t){for(var i=[],n=0;t>n;n++)i.push({y:n,start:0,end:e});for(var a=[],n=0;e>n;n++)a.push({x:n,start:0,end:t});return{row:i,cloumn:a}},_rectZeroArray:function(e){for(var t=[],i=e,n=-1;++n<i;)t[n]=0;return t}},e}),define("echarts/util/shape/HandlePolygon",["require","zrender/shape/Base","zrender/shape/Polygon","zrender/tool/util"],function(e){function t(e){i.call(this,e)}var i=e("zrender/shape/Base"),n=e("zrender/shape/Polygon"),a=e("zrender/tool/util");return t.prototype={type:"handle-polygon",buildPath:function(e,t){n.prototype.buildPath(e,t)},isCover:function(e,t){var i=this.transformCoordToLocal(e,t);e=i[0],t=i[1];var n=this.style.rect;return e>=n.x&&e<=n.x+n.width&&t>=n.y&&t<=n.y+n.height?!0:!1}},a.inherits(t,i),t});
+define('echarts/chart/wordCloud', [
+    'require',
+    './base',
+    'zrender/shape/Text',
+    '../layout/WordCloud',
+    '../component/grid',
+    '../component/dataRange',
+    '../config',
+    '../util/ecData',
+    'zrender/tool/util',
+    'zrender/tool/color',
+    '../chart'
+], function (require) {
+    var ChartBase = require('./base');
+    var TextShape = require('zrender/shape/Text');
+    var CloudLayout = require('../layout/WordCloud');
+    require('../component/grid');
+    require('../component/dataRange');
+    var ecConfig = require('../config');
+    var ecData = require('../util/ecData');
+    var zrUtil = require('zrender/tool/util');
+    var zrColor = require('zrender/tool/color');
+    ecConfig.wordCloud = {
+        zlevel: 0,
+        z: 2,
+        clickable: true,
+        center: [
+            '50%',
+            '50%'
+        ],
+        size: [
+            '40%',
+            '40%'
+        ],
+        textRotation: [
+            0,
+            90
+        ],
+        textPadding: 0,
+        autoSize: {
+            enable: true,
+            minSize: 12
+        },
+        itemStyle: {
+            normal: {
+                textStyle: {
+                    fontSize: function (data) {
+                        return data.value;
+                    }
+                }
+            }
+        }
+    };
+    function Cloud(ecTheme, messageCenter, zr, option, myChart) {
+        ChartBase.call(this, ecTheme, messageCenter, zr, option, myChart);
+        this.refresh(option);
+    }
+    Cloud.prototype = {
+        type: ecConfig.CHART_TYPE_WORDCLOUD,
+        refresh: function (newOption) {
+            if (newOption) {
+                this.option = newOption;
+                this.series = newOption.series;
+            }
+            this._init();
+        },
+        _init: function () {
+            var series = this.series;
+            this.backupShapeList();
+            var legend = this.component.legend;
+            for (var i = 0; i < series.length; i++) {
+                if (series[i].type === ecConfig.CHART_TYPE_WORDCLOUD) {
+                    series[i] = this.reformOption(series[i]);
+                    var serieName = series[i].name || '';
+                    this.selectedMap[serieName] = legend ? legend.isSelected(serieName) : true;
+                    if (!this.selectedMap[serieName]) {
+                        continue;
+                    }
+                    this.buildMark(i);
+                    this._initSerie(series[i]);
+                }
+            }
+        },
+        _initSerie: function (serie) {
+            var textStyle = serie.itemStyle.normal.textStyle;
+            var size = [
+                this.parsePercent(serie.size[0], this.zr.getWidth()) || 200,
+                this.parsePercent(serie.size[1], this.zr.getHeight()) || 200
+            ];
+            var center = this.parseCenter(this.zr, serie.center);
+            var layoutConfig = {
+                size: size,
+                wordletype: { autoSizeCal: serie.autoSize },
+                center: center,
+                rotate: serie.textRotation,
+                padding: serie.textPadding,
+                font: textStyle.fontFamily,
+                fontSize: textStyle.fontSize,
+                fontWeight: textStyle.fontWeight,
+                fontStyle: textStyle.fontStyle,
+                text: function (d) {
+                    return d.name;
+                },
+                data: serie.data
+            };
+            var clouds = new CloudLayout(layoutConfig);
+            var self = this;
+            clouds.end(function (d) {
+                self._buildShapes(d);
+            });
+            clouds.start();
+        },
+        _buildShapes: function (data) {
+            var len = data.length;
+            for (var i = 0; i < len; i++) {
+                this._buildTextShape(data[i], 0, i);
+            }
+            this.addShapeList();
+        },
+        _buildTextShape: function (oneText, seriesIndex, dataIndex) {
+            var series = this.series;
+            var serie = series[seriesIndex];
+            var serieName = serie.name || '';
+            var data = serie.data[dataIndex];
+            var queryTarget = [
+                data,
+                serie
+            ];
+            var legend = this.component.legend;
+            var defaultColor = legend ? legend.getColor(serieName) : this.zr.getColor(seriesIndex);
+            var normal = this.deepMerge(queryTarget, 'itemStyle.normal') || {};
+            var emphasis = this.deepMerge(queryTarget, 'itemStyle.emphasis') || {};
+            var normalColor = this.getItemStyleColor(normal.color, seriesIndex, dataIndex, data) || defaultColor;
+            var emphasisColor = this.getItemStyleColor(emphasis.color, seriesIndex, dataIndex, data) || (typeof normalColor === 'string' ? zrColor.lift(normalColor, -0.2) : normalColor);
+            var textShape = new TextShape({
+                zlevel: serie.zlevel,
+                z: serie.z,
+                hoverable: true,
+                clickable: this.deepQuery(queryTarget, 'clickable'),
+                style: {
+                    x: 0,
+                    y: 0,
+                    text: oneText.text,
+                    color: normalColor,
+                    textFont: [
+                        oneText.style,
+                        oneText.weight,
+                        oneText.size + 'px',
+                        oneText.font
+                    ].join(' '),
+                    textBaseline: 'alphabetic',
+                    textAlign: 'center'
+                },
+                highlightStyle: {
+                    brushType: emphasis.borderWidth ? 'both' : 'fill',
+                    color: emphasisColor,
+                    lineWidth: emphasis.borderWidth || 0,
+                    strokeColor: emphasis.borderColor
+                },
+                position: [
+                    oneText.x,
+                    oneText.y
+                ],
+                rotation: [
+                    -oneText.rotate / 180 * Math.PI,
+                    0,
+                    0
+                ]
+            });
+            ecData.pack(textShape, serie, seriesIndex, data, dataIndex, data.name);
+            this.shapeList.push(textShape);
+        }
+    };
+    zrUtil.inherits(Cloud, ChartBase);
+    require('../chart').define('wordCloud', Cloud);
+    return Cloud;
+});define('echarts/layout/WordCloud', [
+    'require',
+    '../layout/WordCloudRectZero',
+    'zrender/tool/util'
+], function (require) {
+    var ZeroArray = require('../layout/WordCloudRectZero');
+    var zrUtil = require('zrender/tool/util');
+    function CloudLayout(option) {
+        this._init(option);
+    }
+    CloudLayout.prototype = {
+        start: function () {
+            var board = null;
+            var maxWit = 0;
+            var maxHit = 0;
+            var maxArea = 0;
+            var i = -1;
+            var tags = [];
+            var maxBounds = null;
+            var data = this.wordsdata;
+            var dfop = this.defaultOption;
+            var wordletype = dfop.wordletype;
+            var size = dfop.size;
+            var that = this;
+            var zeroArrayObj = new ZeroArray({
+                type: wordletype.type,
+                width: size[0],
+                height: size[1]
+            });
+            zeroArrayObj.calculate(function (options) {
+                board = options.initarr;
+                maxWit = options.maxWit;
+                maxHit = options.maxHit;
+                maxArea = options.area;
+                maxBounds = options.imgboard;
+                startStep();
+            }, this);
+            return this;
+            function startStep() {
+                that.totalArea = maxArea;
+                if (wordletype.autoSizeCal.enable) {
+                    that._autoCalTextSize(data, maxArea, maxWit, maxHit, wordletype.autoSizeCal.minSize);
+                }
+                if (dfop.timer) {
+                    clearInterval(dfop.timer);
+                }
+                dfop.timer = setInterval(step, 0);
+                step();
+            }
+            function step() {
+                var start = +new Date();
+                var n = data.length;
+                var d;
+                while (+new Date() - start < dfop.timeInterval && ++i < n && dfop.timer) {
+                    d = data[i];
+                    d.x = size[0] >> 1;
+                    d.y = size[1] >> 1;
+                    that._cloudSprite(d, data, i);
+                    if (d.hasText && that._place(board, d, maxBounds)) {
+                        tags.push(d);
+                        d.x -= size[0] >> 1;
+                        d.y -= size[1] >> 1;
+                    }
+                }
+                if (i >= n) {
+                    that.stop();
+                    that._fixTagPosition(tags);
+                    dfop.endcallback(tags);
+                }
+            }
+        },
+        _fixTagPosition: function (tags) {
+            var center = this.defaultOption.center;
+            for (var i = 0, len = tags.length; i < len; i++) {
+                tags[i].x += center[0];
+                tags[i].y += center[1];
+            }
+        },
+        stop: function () {
+            if (this.defaultOption.timer) {
+                clearInterval(this.defaultOption.timer);
+                this.defaultOption.timer = null;
+            }
+            return this;
+        },
+        end: function (v) {
+            if (v) {
+                this.defaultOption.endcallback = v;
+            }
+            return this;
+        },
+        _init: function (option) {
+            this.defaultOption = {};
+            this._initProperty(option);
+            this._initMethod(option);
+            this._initCanvas();
+            this._initData(option.data);
+        },
+        _initData: function (datas) {
+            var that = this;
+            var thatop = that.defaultOption;
+            this.wordsdata = datas.map(function (d, i) {
+                d.text = thatop.text.call(that, d, i);
+                d.font = thatop.font.call(that, d, i);
+                d.style = thatop.fontStyle.call(that, d, i);
+                d.weight = thatop.fontWeight.call(that, d, i);
+                d.rotate = thatop.rotate.call(that, d, i);
+                d.size = ~~thatop.fontSize.call(that, d, i);
+                d.padding = thatop.padding.call(that, d, i);
+                return d;
+            }).sort(function (a, b) {
+                return b.value - a.value;
+            });
+        },
+        _initMethod: function (option) {
+            var dfop = this.defaultOption;
+            dfop.text = option.text ? functor(option.text) : cloudText;
+            dfop.font = option.font ? functor(option.font) : cloudFont;
+            dfop.fontSize = option.fontSize ? functor(option.fontSize) : cloudFontSize;
+            dfop.fontStyle = option.fontStyle ? functor(option.fontStyle) : cloudFontNormal;
+            dfop.fontWeight = option.fontWeight ? functor(option.fontWeight) : cloudFontNormal;
+            dfop.rotate = option.rotate ? newCloudRotate(option.rotate) : cloudRotate;
+            dfop.padding = option.padding ? functor(option.padding) : cloudPadding;
+            dfop.center = option.center;
+            dfop.spiral = archimedeanSpiral;
+            dfop.endcallback = function () {
+            };
+            dfop.rectangularSpiral = rectangularSpiral;
+            dfop.archimedeanSpiral = archimedeanSpiral;
+            function cloudText(d) {
+                return d.name;
+            }
+            function cloudFont() {
+                return 'sans-serif';
+            }
+            function cloudFontNormal() {
+                return 'normal';
+            }
+            function cloudFontSize(d) {
+                return d.value;
+            }
+            function cloudRotate() {
+                return 0;
+            }
+            function newCloudRotate(rotate) {
+                return function () {
+                    return rotate[Math.round(Math.random() * (rotate.length - 1))];
+                };
+            }
+            function cloudPadding() {
+                return 0;
+            }
+            function archimedeanSpiral(size) {
+                var e = size[0] / size[1];
+                return function (t) {
+                    return [
+                        e * (t *= 0.1) * Math.cos(t),
+                        t * Math.sin(t)
+                    ];
+                };
+            }
+            function rectangularSpiral(size) {
+                var dy = 4;
+                var dx = dy * size[0] / size[1];
+                var x = 0;
+                var y = 0;
+                return function (t) {
+                    var sign = t < 0 ? -1 : 1;
+                    switch (Math.sqrt(1 + 4 * sign * t) - sign & 3) {
+                    case 0:
+                        x += dx;
+                        break;
+                    case 1:
+                        y += dy;
+                        break;
+                    case 2:
+                        x -= dx;
+                        break;
+                    default:
+                        y -= dy;
+                        break;
+                    }
+                    return [
+                        x,
+                        y
+                    ];
+                };
+            }
+            function functor(v) {
+                return typeof v === 'function' ? v : function () {
+                    return v;
+                };
+            }
+        },
+        _initProperty: function (option) {
+            var dfop = this.defaultOption;
+            dfop.size = option.size || [
+                256,
+                256
+            ];
+            dfop.wordletype = option.wordletype;
+            dfop.words = option.words || [];
+            dfop.timeInterval = Infinity;
+            dfop.timer = null;
+            dfop.spirals = {
+                archimedean: dfop.archimedeanSpiral,
+                rectangular: dfop.rectangularSpiral
+            };
+            zrUtil.merge(dfop, {
+                size: [
+                    256,
+                    256
+                ],
+                wordletype: {
+                    type: 'RECT',
+                    areaPresent: 0.058,
+                    autoSizeCal: {
+                        enable: true,
+                        minSize: 12
+                    }
+                }
+            });
+        },
+        _initCanvas: function () {
+            var cloudRadians = Math.PI / 180;
+            var cw = 1 << 11 >> 5;
+            var ch = 1 << 11;
+            var canvas;
+            var ratio = 1;
+            if (typeof document !== 'undefined') {
+                canvas = document.createElement('canvas');
+                canvas.width = 1;
+                canvas.height = 1;
+                ratio = Math.sqrt(canvas.getContext('2d').getImageData(0, 0, 1, 1).data.length >> 2);
+                canvas.width = (cw << 5) / ratio;
+                canvas.height = ch / ratio;
+            } else {
+                canvas = new Canvas(cw << 5, ch);
+            }
+            var c = canvas.getContext('2d');
+            c.fillStyle = c.strokeStyle = 'red';
+            c.textAlign = 'center';
+            this.defaultOption.c = c;
+            this.defaultOption.cw = cw;
+            this.defaultOption.ch = ch;
+            this.defaultOption.ratio = ratio;
+            this.defaultOption.cloudRadians = cloudRadians;
+        },
+        _cloudSprite: function (d, data, di) {
+            if (d.sprite) {
+                return;
+            }
+            var cw = this.defaultOption.cw;
+            var ch = this.defaultOption.ch;
+            var c = this.defaultOption.c;
+            var ratio = this.defaultOption.ratio;
+            var cloudRadians = this.defaultOption.cloudRadians;
+            c.clearRect(0, 0, (cw << 5) / ratio, ch / ratio);
+            var x = 0;
+            var y = 0;
+            var maxh = 0;
+            var n = data.length;
+            --di;
+            while (++di < n) {
+                d = data[di];
+                c.save();
+                c.font = d.style + ' ' + d.weight + ' ' + ~~((d.size + 1) / ratio) + 'px ' + d.font;
+                var w = c.measureText(d.text + 'm').width * ratio;
+                var h = d.size << 1;
+                if (d.rotate) {
+                    var sr = Math.sin(d.rotate * cloudRadians);
+                    var cr = Math.cos(d.rotate * cloudRadians);
+                    var wcr = w * cr;
+                    var wsr = w * sr;
+                    var hcr = h * cr;
+                    var hsr = h * sr;
+                    w = Math.max(Math.abs(wcr + hsr), Math.abs(wcr - hsr)) + 31 >> 5 << 5;
+                    h = ~~Math.max(Math.abs(wsr + hcr), Math.abs(wsr - hcr));
+                } else {
+                    w = w + 31 >> 5 << 5;
+                }
+                if (h > maxh) {
+                    maxh = h;
+                }
+                if (x + w >= cw << 5) {
+                    x = 0;
+                    y += maxh;
+                    maxh = 0;
+                }
+                if (y + h >= ch) {
+                    break;
+                }
+                c.translate((x + (w >> 1)) / ratio, (y + (h >> 1)) / ratio);
+                if (d.rotate) {
+                    c.rotate(d.rotate * cloudRadians);
+                }
+                c.fillText(d.text, 0, 0);
+                if (d.padding) {
+                    c.lineWidth = 2 * d.padding;
+                    c.strokeText(d.text, 0, 0);
+                }
+                c.restore();
+                d.width = w;
+                d.height = h;
+                d.xoff = x;
+                d.yoff = y;
+                d.x1 = w >> 1;
+                d.y1 = h >> 1;
+                d.x0 = -d.x1;
+                d.y0 = -d.y1;
+                d.hasText = true;
+                x += w;
+            }
+            var pixels = c.getImageData(0, 0, (cw << 5) / ratio, ch / ratio).data;
+            var sprite = [];
+            while (--di >= 0) {
+                d = data[di];
+                if (!d.hasText) {
+                    continue;
+                }
+                var w = d.width;
+                var w32 = w >> 5;
+                var h = d.y1 - d.y0;
+                for (var i = 0; i < h * w32; i++) {
+                    sprite[i] = 0;
+                }
+                x = d.xoff;
+                if (x == null) {
+                    return;
+                }
+                y = d.yoff;
+                var seen = 0;
+                var seenRow = -1;
+                for (var j = 0; j < h; j++) {
+                    for (var i = 0; i < w; i++) {
+                        var k = w32 * j + (i >> 5);
+                        var m = pixels[(y + j) * (cw << 5) + (x + i) << 2] ? 1 << 31 - i % 32 : 0;
+                        sprite[k] |= m;
+                        seen |= m;
+                    }
+                    if (seen) {
+                        seenRow = j;
+                    } else {
+                        d.y0++;
+                        h--;
+                        j--;
+                        y++;
+                    }
+                }
+                d.y1 = d.y0 + seenRow;
+                d.sprite = sprite.slice(0, (d.y1 - d.y0) * w32);
+            }
+        },
+        _place: function (board, tag, maxBounds) {
+            var size = this.defaultOption.size;
+            var perimeter = [
+                {
+                    x: 0,
+                    y: 0
+                },
+                {
+                    x: size[0],
+                    y: size[1]
+                }
+            ];
+            var startX = tag.x;
+            var startY = tag.y;
+            var maxDelta = Math.sqrt(size[0] * size[0] + size[1] * size[1]);
+            var s = this.defaultOption.spiral(size);
+            var dt = Math.random() < 0.5 ? 1 : -1;
+            var t = -dt;
+            var dxdy;
+            var dx;
+            var dy;
+            while (dxdy = s(t += dt)) {
+                dx = ~~dxdy[0];
+                dy = ~~dxdy[1];
+                if (Math.min(dx, dy) > maxDelta) {
+                    break;
+                }
+                tag.x = startX + dx;
+                tag.y = startY + dy;
+                if (tag.x + tag.x0 < 0 || tag.y + tag.y0 < 0 || tag.x + tag.x1 > size[0] || tag.y + tag.y1 > size[1]) {
+                    continue;
+                }
+                if (!cloudCollide(tag, board, size[0])) {
+                    if (collideRects(tag, maxBounds)) {
+                        var sprite = tag.sprite;
+                        var w = tag.width >> 5;
+                        var sw = size[0] >> 5;
+                        var lx = tag.x - (w << 4);
+                        var sx = lx & 127;
+                        var msx = 32 - sx;
+                        var h = tag.y1 - tag.y0;
+                        var x = (tag.y + tag.y0) * sw + (lx >> 5);
+                        var last;
+                        for (var j = 0; j < h; j++) {
+                            last = 0;
+                            for (var i = 0; i <= w; i++) {
+                                board[x + i] |= last << msx | (i < w ? (last = sprite[j * w + i]) >>> sx : 0);
+                            }
+                            x += sw;
+                        }
+                        delete tag.sprite;
+                        return true;
+                    }
+                }
+            }
+            return false;
+            function cloudCollide(tag, board, sw) {
+                sw >>= 5;
+                var sprite = tag.sprite;
+                var w = tag.width >> 5;
+                var lx = tag.x - (w << 4);
+                var sx = lx & 127;
+                var msx = 32 - sx;
+                var h = tag.y1 - tag.y0;
+                var x = (tag.y + tag.y0) * sw + (lx >> 5);
+                var last;
+                for (var j = 0; j < h; j++) {
+                    last = 0;
+                    for (var i = 0; i <= w; i++) {
+                        if ((last << msx | (i < w ? (last = sprite[j * w + i]) >>> sx : 0)) & board[x + i]) {
+                            return true;
+                        }
+                    }
+                    x += sw;
+                }
+                return false;
+            }
+            function collideRects(a, maxBounds) {
+                return maxBounds.row[a.y] && maxBounds.cloumn[a.x] && a.x >= maxBounds.row[a.y].start && a.x <= maxBounds.row[a.y].end && a.y >= maxBounds.cloumn[a.x].start && a.y <= maxBounds.cloumn[a.x].end;
+            }
+        },
+        _autoCalTextSize: function (data, shapeArea, maxwidth, maxheight, minSize) {
+            var sizesum = sum(data, function (k) {
+                return k.size;
+            });
+            var i = data.length;
+            var maxareapre = 0.25;
+            var minTextSize = minSize;
+            var cw = this.defaultOption.cw;
+            var ch = this.defaultOption.ch;
+            var c = this.defaultOption.c;
+            var ratio = this.defaultOption.ratio;
+            var cloudRadians = this.defaultOption.cloudRadians;
+            var d;
+            var dpre;
+            while (i--) {
+                d = data[i];
+                dpre = d.size / sizesum;
+                if (maxareapre) {
+                    d.areapre = dpre < maxareapre ? dpre : maxareapre;
+                } else {
+                    d.areapre = dpre;
+                }
+                d.area = shapeArea * d.areapre;
+                d.totalarea = shapeArea;
+                measureTextWitHitByarea(d);
+            }
+            function measureTextWitHitByarea(d) {
+                c.clearRect(0, 0, (cw << 5) / ratio, ch / ratio);
+                c.save();
+                c.font = d.style + ' ' + d.weight + ' ' + ~~((d.size + 1) / ratio) + 'px ' + d.font;
+                var w = c.measureText(d.text + 'm').width * ratio, h = d.size << 1;
+                w = w + 31 >> 5 << 5;
+                c.restore();
+                d.aw = w;
+                d.ah = h;
+                var k, rw, rh;
+                if (d.rotate) {
+                    var sr = Math.sin(d.rotate * cloudRadians);
+                    var cr = Math.cos(d.rotate * cloudRadians);
+                    var wcr = w * cr;
+                    var wsr = w * sr;
+                    var hcr = h * cr;
+                    var hsr = h * sr;
+                    rw = Math.max(Math.abs(wcr + hsr), Math.abs(wcr - hsr)) + 31 >> 5 << 5;
+                    rh = ~~Math.max(Math.abs(wsr + hcr), Math.abs(wsr - hcr));
+                }
+                if (d.size <= minTextSize || d.rotate && w * h <= d.area && rw <= maxwidth && rh <= maxheight || w * h <= d.area && w <= maxwidth && h <= maxheight) {
+                    d.area = w * h;
+                    return;
+                }
+                if (d.rotate && rw > maxwidth && rh > maxheight) {
+                    k = Math.min(maxwidth / rw, maxheight / rh);
+                } else if (w > maxwidth || h > maxheight) {
+                    k = Math.min(maxwidth / w, maxheight / h);
+                } else {
+                    k = Math.sqrt(d.area / (d.aw * d.ah));
+                }
+                d.size = ~~(k * d.size);
+                if (d.size < minSize) {
+                    d.size = minSize;
+                    return;
+                }
+                return measureTextWitHitByarea(d);
+            }
+            function sum(dts, callback) {
+                var j = dts.length;
+                var ressum = 0;
+                while (j--) {
+                    ressum += callback(dts[j]);
+                }
+                return ressum;
+            }
+        }
+    };
+    return CloudLayout;
+});define('echarts/component/dataRange', [
+    'require',
+    './base',
+    'zrender/shape/Text',
+    'zrender/shape/Rectangle',
+    '../util/shape/HandlePolygon',
+    '../config',
+    'zrender/tool/util',
+    'zrender/tool/event',
+    'zrender/tool/area',
+    'zrender/tool/color',
+    '../component'
+], function (require) {
+    var Base = require('./base');
+    var TextShape = require('zrender/shape/Text');
+    var RectangleShape = require('zrender/shape/Rectangle');
+    var HandlePolygonShape = require('../util/shape/HandlePolygon');
+    var ecConfig = require('../config');
+    ecConfig.dataRange = {
+        zlevel: 0,
+        z: 4,
+        show: true,
+        orient: 'vertical',
+        x: 'left',
+        y: 'bottom',
+        backgroundColor: 'rgba(0,0,0,0)',
+        borderColor: '#ccc',
+        borderWidth: 0,
+        padding: 5,
+        itemGap: 10,
+        itemWidth: 20,
+        itemHeight: 14,
+        precision: 0,
+        splitNumber: 5,
+        splitList: null,
+        calculable: false,
+        selectedMode: true,
+        hoverLink: true,
+        realtime: true,
+        color: [
+            '#006edd',
+            '#e0ffff'
+        ],
+        textStyle: { color: '#333' }
+    };
+    var zrUtil = require('zrender/tool/util');
+    var zrEvent = require('zrender/tool/event');
+    var zrArea = require('zrender/tool/area');
+    var zrColor = require('zrender/tool/color');
+    function DataRange(ecTheme, messageCenter, zr, option, myChart) {
+        Base.call(this, ecTheme, messageCenter, zr, option, myChart);
+        var self = this;
+        self._ondrift = function (dx, dy) {
+            return self.__ondrift(this, dx, dy);
+        };
+        self._ondragend = function () {
+            return self.__ondragend();
+        };
+        self._dataRangeSelected = function (param) {
+            return self.__dataRangeSelected(param);
+        };
+        self._dispatchHoverLink = function (param) {
+            return self.__dispatchHoverLink(param);
+        };
+        self._onhoverlink = function (params) {
+            return self.__onhoverlink(params);
+        };
+        this._selectedMap = {};
+        this._range = {};
+        this.refresh(option);
+        messageCenter.bind(ecConfig.EVENT.HOVER, this._onhoverlink);
+    }
+    DataRange.prototype = {
+        type: ecConfig.COMPONENT_TYPE_DATARANGE,
+        _textGap: 10,
+        _buildShape: function () {
+            this._itemGroupLocation = this._getItemGroupLocation();
+            this._buildBackground();
+            if (this._isContinuity()) {
+                this._buildGradient();
+            } else {
+                this._buildItem();
+            }
+            if (this.dataRangeOption.show) {
+                for (var i = 0, l = this.shapeList.length; i < l; i++) {
+                    this.zr.addShape(this.shapeList[i]);
+                }
+            }
+            this._syncShapeFromRange();
+        },
+        _buildItem: function () {
+            var data = this._valueTextList;
+            var dataLength = data.length;
+            var itemName;
+            var itemShape;
+            var textShape;
+            var font = this.getFont(this.dataRangeOption.textStyle);
+            var lastX = this._itemGroupLocation.x;
+            var lastY = this._itemGroupLocation.y;
+            var itemWidth = this.dataRangeOption.itemWidth;
+            var itemHeight = this.dataRangeOption.itemHeight;
+            var itemGap = this.dataRangeOption.itemGap;
+            var textHeight = zrArea.getTextHeight('国', font);
+            var color;
+            if (this.dataRangeOption.orient == 'vertical' && this.dataRangeOption.x == 'right') {
+                lastX = this._itemGroupLocation.x + this._itemGroupLocation.width - itemWidth;
+            }
+            var needValueText = true;
+            if (this.dataRangeOption.text) {
+                needValueText = false;
+                if (this.dataRangeOption.text[0]) {
+                    textShape = this._getTextShape(lastX, lastY, this.dataRangeOption.text[0]);
+                    if (this.dataRangeOption.orient == 'horizontal') {
+                        lastX += zrArea.getTextWidth(this.dataRangeOption.text[0], font) + this._textGap;
+                    } else {
+                        lastY += textHeight + this._textGap;
+                        textShape.style.y += textHeight / 2 + this._textGap;
+                        textShape.style.textBaseline = 'bottom';
+                    }
+                    this.shapeList.push(new TextShape(textShape));
+                }
+            }
+            for (var i = 0; i < dataLength; i++) {
+                itemName = data[i];
+                color = this.getColorByIndex(i);
+                itemShape = this._getItemShape(lastX, lastY, itemWidth, itemHeight, this._selectedMap[i] ? color : '#ccc');
+                itemShape._idx = i;
+                itemShape.onmousemove = this._dispatchHoverLink;
+                if (this.dataRangeOption.selectedMode) {
+                    itemShape.clickable = true;
+                    itemShape.onclick = this._dataRangeSelected;
+                }
+                this.shapeList.push(new RectangleShape(itemShape));
+                if (needValueText) {
+                    textShape = {
+                        zlevel: this.getZlevelBase(),
+                        z: this.getZBase(),
+                        style: {
+                            x: lastX + itemWidth + 5,
+                            y: lastY,
+                            color: this._selectedMap[i] ? this.dataRangeOption.textStyle.color : '#ccc',
+                            text: data[i],
+                            textFont: font,
+                            textBaseline: 'top'
+                        },
+                        highlightStyle: { brushType: 'fill' }
+                    };
+                    if (this.dataRangeOption.orient == 'vertical' && this.dataRangeOption.x == 'right') {
+                        textShape.style.x -= itemWidth + 10;
+                        textShape.style.textAlign = 'right';
+                    }
+                    textShape._idx = i;
+                    textShape.onmousemove = this._dispatchHoverLink;
+                    if (this.dataRangeOption.selectedMode) {
+                        textShape.clickable = true;
+                        textShape.onclick = this._dataRangeSelected;
+                    }
+                    this.shapeList.push(new TextShape(textShape));
+                }
+                if (this.dataRangeOption.orient == 'horizontal') {
+                    lastX += itemWidth + (needValueText ? 5 : 0) + (needValueText ? zrArea.getTextWidth(itemName, font) : 0) + itemGap;
+                } else {
+                    lastY += itemHeight + itemGap;
+                }
+            }
+            if (!needValueText && this.dataRangeOption.text[1]) {
+                if (this.dataRangeOption.orient == 'horizontal') {
+                    lastX = lastX - itemGap + this._textGap;
+                } else {
+                    lastY = lastY - itemGap + this._textGap;
+                }
+                textShape = this._getTextShape(lastX, lastY, this.dataRangeOption.text[1]);
+                if (this.dataRangeOption.orient != 'horizontal') {
+                    textShape.style.y -= 5;
+                    textShape.style.textBaseline = 'top';
+                }
+                this.shapeList.push(new TextShape(textShape));
+            }
+        },
+        _buildGradient: function () {
+            var itemShape;
+            var textShape;
+            var font = this.getFont(this.dataRangeOption.textStyle);
+            var lastX = this._itemGroupLocation.x;
+            var lastY = this._itemGroupLocation.y;
+            var itemWidth = this.dataRangeOption.itemWidth;
+            var itemHeight = this.dataRangeOption.itemHeight;
+            var textHeight = zrArea.getTextHeight('国', font);
+            var mSize = 10;
+            var needValueText = true;
+            if (this.dataRangeOption.text) {
+                needValueText = false;
+                if (this.dataRangeOption.text[0]) {
+                    textShape = this._getTextShape(lastX, lastY, this.dataRangeOption.text[0]);
+                    if (this.dataRangeOption.orient == 'horizontal') {
+                        lastX += zrArea.getTextWidth(this.dataRangeOption.text[0], font) + this._textGap;
+                    } else {
+                        lastY += textHeight + this._textGap;
+                        textShape.style.y += textHeight / 2 + this._textGap;
+                        textShape.style.textBaseline = 'bottom';
+                    }
+                    this.shapeList.push(new TextShape(textShape));
+                }
+            }
+            var zrColor = require('zrender/tool/color');
+            var per = 1 / (this.dataRangeOption.color.length - 1);
+            var colorList = [];
+            for (var i = 0, l = this.dataRangeOption.color.length; i < l; i++) {
+                colorList.push([
+                    i * per,
+                    this.dataRangeOption.color[i]
+                ]);
+            }
+            if (this.dataRangeOption.orient == 'horizontal') {
+                itemShape = {
+                    zlevel: this.getZlevelBase(),
+                    z: this.getZBase(),
+                    style: {
+                        x: lastX,
+                        y: lastY,
+                        width: itemWidth * mSize,
+                        height: itemHeight,
+                        color: zrColor.getLinearGradient(lastX, lastY, lastX + itemWidth * mSize, lastY, colorList)
+                    },
+                    hoverable: false
+                };
+                lastX += itemWidth * mSize + this._textGap;
+            } else {
+                itemShape = {
+                    zlevel: this.getZlevelBase(),
+                    z: this.getZBase(),
+                    style: {
+                        x: lastX,
+                        y: lastY,
+                        width: itemWidth,
+                        height: itemHeight * mSize,
+                        color: zrColor.getLinearGradient(lastX, lastY, lastX, lastY + itemHeight * mSize, colorList)
+                    },
+                    hoverable: false
+                };
+                lastY += itemHeight * mSize + this._textGap;
+            }
+            this.shapeList.push(new RectangleShape(itemShape));
+            this._calculableLocation = itemShape.style;
+            if (this.dataRangeOption.calculable) {
+                this._buildFiller();
+                this._bulidMask();
+                this._bulidHandle();
+            }
+            this._buildIndicator();
+            if (!needValueText && this.dataRangeOption.text[1]) {
+                textShape = this._getTextShape(lastX, lastY, this.dataRangeOption.text[1]);
+                this.shapeList.push(new TextShape(textShape));
+            }
+        },
+        _buildIndicator: function () {
+            var x = this._calculableLocation.x;
+            var y = this._calculableLocation.y;
+            var width = this._calculableLocation.width;
+            var height = this._calculableLocation.height;
+            var size = 5;
+            var pointList;
+            var textPosition;
+            if (this.dataRangeOption.orient == 'horizontal') {
+                if (this.dataRangeOption.y != 'bottom') {
+                    pointList = [
+                        [
+                            x,
+                            y + height
+                        ],
+                        [
+                            x - size,
+                            y + height + size
+                        ],
+                        [
+                            x + size,
+                            y + height + size
+                        ]
+                    ];
+                    textPosition = 'bottom';
+                } else {
+                    pointList = [
+                        [
+                            x,
+                            y
+                        ],
+                        [
+                            x - size,
+                            y - size
+                        ],
+                        [
+                            x + size,
+                            y - size
+                        ]
+                    ];
+                    textPosition = 'top';
+                }
+            } else {
+                if (this.dataRangeOption.x != 'right') {
+                    pointList = [
+                        [
+                            x + width,
+                            y
+                        ],
+                        [
+                            x + width + size,
+                            y - size
+                        ],
+                        [
+                            x + width + size,
+                            y + size
+                        ]
+                    ];
+                    textPosition = 'right';
+                } else {
+                    pointList = [
+                        [
+                            x,
+                            y
+                        ],
+                        [
+                            x - size,
+                            y - size
+                        ],
+                        [
+                            x - size,
+                            y + size
+                        ]
+                    ];
+                    textPosition = 'left';
+                }
+            }
+            this._indicatorShape = {
+                style: {
+                    pointList: pointList,
+                    color: '#fff',
+                    __rect: {
+                        x: Math.min(pointList[0][0], pointList[1][0]),
+                        y: Math.min(pointList[0][1], pointList[1][1]),
+                        width: size * (this.dataRangeOption.orient == 'horizontal' ? 2 : 1),
+                        height: size * (this.dataRangeOption.orient == 'horizontal' ? 1 : 2)
+                    }
+                },
+                highlightStyle: {
+                    brushType: 'fill',
+                    textPosition: textPosition,
+                    textColor: this.dataRangeOption.textStyle.color
+                },
+                hoverable: false
+            };
+            this._indicatorShape = new HandlePolygonShape(this._indicatorShape);
+        },
+        _buildFiller: function () {
+            this._fillerShape = {
+                zlevel: this.getZlevelBase(),
+                z: this.getZBase() + 1,
+                style: {
+                    x: this._calculableLocation.x,
+                    y: this._calculableLocation.y,
+                    width: this._calculableLocation.width,
+                    height: this._calculableLocation.height,
+                    color: 'rgba(255,255,255,0)'
+                },
+                highlightStyle: {
+                    strokeColor: 'rgba(255,255,255,0.5)',
+                    lineWidth: 1
+                },
+                draggable: true,
+                ondrift: this._ondrift,
+                ondragend: this._ondragend,
+                onmousemove: this._dispatchHoverLink,
+                _type: 'filler'
+            };
+            this._fillerShape = new RectangleShape(this._fillerShape);
+            this.shapeList.push(this._fillerShape);
+        },
+        _bulidHandle: function () {
+            var x = this._calculableLocation.x;
+            var y = this._calculableLocation.y;
+            var width = this._calculableLocation.width;
+            var height = this._calculableLocation.height;
+            var font = this.getFont(this.dataRangeOption.textStyle);
+            var textHeight = zrArea.getTextHeight('国', font);
+            var textWidth = Math.max(zrArea.getTextWidth(this._textFormat(this.dataRangeOption.max), font), zrArea.getTextWidth(this._textFormat(this.dataRangeOption.min), font)) + 2;
+            var pointListStart;
+            var textXStart;
+            var textYStart;
+            var coverRectStart;
+            var pointListEnd;
+            var textXEnd;
+            var textYEnd;
+            var coverRectEnd;
+            if (this.dataRangeOption.orient == 'horizontal') {
+                if (this.dataRangeOption.y != 'bottom') {
+                    pointListStart = [
+                        [
+                            x,
+                            y
+                        ],
+                        [
+                            x,
+                            y + height + textHeight
+                        ],
+                        [
+                            x - textHeight,
+                            y + height + textHeight
+                        ],
+                        [
+                            x - 1,
+                            y + height
+                        ],
+                        [
+                            x - 1,
+                            y
+                        ]
+                    ];
+                    textXStart = x - textWidth / 2 - textHeight;
+                    textYStart = y + height + textHeight / 2 + 2;
+                    coverRectStart = {
+                        x: x - textWidth - textHeight,
+                        y: y + height,
+                        width: textWidth + textHeight,
+                        height: textHeight
+                    };
+                    pointListEnd = [
+                        [
+                            x + width,
+                            y
+                        ],
+                        [
+                            x + width,
+                            y + height + textHeight
+                        ],
+                        [
+                            x + width + textHeight,
+                            y + height + textHeight
+                        ],
+                        [
+                            x + width + 1,
+                            y + height
+                        ],
+                        [
+                            x + width + 1,
+                            y
+                        ]
+                    ];
+                    textXEnd = x + width + textWidth / 2 + textHeight;
+                    textYEnd = textYStart;
+                    coverRectEnd = {
+                        x: x + width,
+                        y: y + height,
+                        width: textWidth + textHeight,
+                        height: textHeight
+                    };
+                } else {
+                    pointListStart = [
+                        [
+                            x,
+                            y + height
+                        ],
+                        [
+                            x,
+                            y - textHeight
+                        ],
+                        [
+                            x - textHeight,
+                            y - textHeight
+                        ],
+                        [
+                            x - 1,
+                            y
+                        ],
+                        [
+                            x - 1,
+                            y + height
+                        ]
+                    ];
+                    textXStart = x - textWidth / 2 - textHeight;
+                    textYStart = y - textHeight / 2 - 2;
+                    coverRectStart = {
+                        x: x - textWidth - textHeight,
+                        y: y - textHeight,
+                        width: textWidth + textHeight,
+                        height: textHeight
+                    };
+                    pointListEnd = [
+                        [
+                            x + width,
+                            y + height
+                        ],
+                        [
+                            x + width,
+                            y - textHeight
+                        ],
+                        [
+                            x + width + textHeight,
+                            y - textHeight
+                        ],
+                        [
+                            x + width + 1,
+                            y
+                        ],
+                        [
+                            x + width + 1,
+                            y + height
+                        ]
+                    ];
+                    textXEnd = x + width + textWidth / 2 + textHeight;
+                    textYEnd = textYStart;
+                    coverRectEnd = {
+                        x: x + width,
+                        y: y - textHeight,
+                        width: textWidth + textHeight,
+                        height: textHeight
+                    };
+                }
+            } else {
+                textWidth += textHeight;
+                if (this.dataRangeOption.x != 'right') {
+                    pointListStart = [
+                        [
+                            x,
+                            y
+                        ],
+                        [
+                            x + width + textHeight,
+                            y
+                        ],
+                        [
+                            x + width + textHeight,
+                            y - textHeight
+                        ],
+                        [
+                            x + width,
+                            y - 1
+                        ],
+                        [
+                            x,
+                            y - 1
+                        ]
+                    ];
+                    textXStart = x + width + textWidth / 2 + textHeight / 2;
+                    textYStart = y - textHeight / 2;
+                    coverRectStart = {
+                        x: x + width,
+                        y: y - textHeight,
+                        width: textWidth + textHeight,
+                        height: textHeight
+                    };
+                    pointListEnd = [
+                        [
+                            x,
+                            y + height
+                        ],
+                        [
+                            x + width + textHeight,
+                            y + height
+                        ],
+                        [
+                            x + width + textHeight,
+                            y + textHeight + height
+                        ],
+                        [
+                            x + width,
+                            y + 1 + height
+                        ],
+                        [
+                            x,
+                            y + height + 1
+                        ]
+                    ];
+                    textXEnd = textXStart;
+                    textYEnd = y + height + textHeight / 2;
+                    coverRectEnd = {
+                        x: x + width,
+                        y: y + height,
+                        width: textWidth + textHeight,
+                        height: textHeight
+                    };
+                } else {
+                    pointListStart = [
+                        [
+                            x + width,
+                            y
+                        ],
+                        [
+                            x - textHeight,
+                            y
+                        ],
+                        [
+                            x - textHeight,
+                            y - textHeight
+                        ],
+                        [
+                            x,
+                            y - 1
+                        ],
+                        [
+                            x + width,
+                            y - 1
+                        ]
+                    ];
+                    textXStart = x - textWidth / 2 - textHeight / 2;
+                    textYStart = y - textHeight / 2;
+                    coverRectStart = {
+                        x: x - textWidth - textHeight,
+                        y: y - textHeight,
+                        width: textWidth + textHeight,
+                        height: textHeight
+                    };
+                    pointListEnd = [
+                        [
+                            x + width,
+                            y + height
+                        ],
+                        [
+                            x - textHeight,
+                            y + height
+                        ],
+                        [
+                            x - textHeight,
+                            y + textHeight + height
+                        ],
+                        [
+                            x,
+                            y + 1 + height
+                        ],
+                        [
+                            x + width,
+                            y + height + 1
+                        ]
+                    ];
+                    textXEnd = textXStart;
+                    textYEnd = y + height + textHeight / 2;
+                    coverRectEnd = {
+                        x: x - textWidth - textHeight,
+                        y: y + height,
+                        width: textWidth + textHeight,
+                        height: textHeight
+                    };
+                }
+            }
+            this._startShape = {
+                style: {
+                    pointList: pointListStart,
+                    text: this._textFormat(this.dataRangeOption.max),
+                    textX: textXStart,
+                    textY: textYStart,
+                    textFont: font,
+                    color: this.getColor(this.dataRangeOption.max),
+                    rect: coverRectStart,
+                    x: pointListStart[0][0],
+                    y: pointListStart[0][1],
+                    _x: pointListStart[0][0],
+                    _y: pointListStart[0][1]
+                }
+            };
+            this._startShape.highlightStyle = {
+                strokeColor: this._startShape.style.color,
+                lineWidth: 1
+            };
+            this._endShape = {
+                style: {
+                    pointList: pointListEnd,
+                    text: this._textFormat(this.dataRangeOption.min),
+                    textX: textXEnd,
+                    textY: textYEnd,
+                    textFont: font,
+                    color: this.getColor(this.dataRangeOption.min),
+                    rect: coverRectEnd,
+                    x: pointListEnd[0][0],
+                    y: pointListEnd[0][1],
+                    _x: pointListEnd[0][0],
+                    _y: pointListEnd[0][1]
+                }
+            };
+            this._endShape.highlightStyle = {
+                strokeColor: this._endShape.style.color,
+                lineWidth: 1
+            };
+            this._startShape.zlevel = this._endShape.zlevel = this.getZlevelBase();
+            this._startShape.z = this._endShape.z = this.getZBase() + 1;
+            this._startShape.draggable = this._endShape.draggable = true;
+            this._startShape.ondrift = this._endShape.ondrift = this._ondrift;
+            this._startShape.ondragend = this._endShape.ondragend = this._ondragend;
+            this._startShape.style.textColor = this._endShape.style.textColor = this.dataRangeOption.textStyle.color;
+            this._startShape.style.textAlign = this._endShape.style.textAlign = 'center';
+            this._startShape.style.textPosition = this._endShape.style.textPosition = 'specific';
+            this._startShape.style.textBaseline = this._endShape.style.textBaseline = 'middle';
+            this._startShape.style.width = this._endShape.style.width = 0;
+            this._startShape.style.height = this._endShape.style.height = 0;
+            this._startShape.style.textPosition = this._endShape.style.textPosition = 'specific';
+            this._startShape = new HandlePolygonShape(this._startShape);
+            this._endShape = new HandlePolygonShape(this._endShape);
+            this.shapeList.push(this._startShape);
+            this.shapeList.push(this._endShape);
+        },
+        _bulidMask: function () {
+            var x = this._calculableLocation.x;
+            var y = this._calculableLocation.y;
+            var width = this._calculableLocation.width;
+            var height = this._calculableLocation.height;
+            this._startMask = {
+                zlevel: this.getZlevelBase(),
+                z: this.getZBase() + 1,
+                style: {
+                    x: x,
+                    y: y,
+                    width: this.dataRangeOption.orient == 'horizontal' ? 0 : width,
+                    height: this.dataRangeOption.orient == 'horizontal' ? height : 0,
+                    color: '#ccc'
+                },
+                hoverable: false
+            };
+            this._endMask = {
+                zlevel: this.getZlevelBase(),
+                z: this.getZBase() + 1,
+                style: {
+                    x: this.dataRangeOption.orient == 'horizontal' ? x + width : x,
+                    y: this.dataRangeOption.orient == 'horizontal' ? y : y + height,
+                    width: this.dataRangeOption.orient == 'horizontal' ? 0 : width,
+                    height: this.dataRangeOption.orient == 'horizontal' ? height : 0,
+                    color: '#ccc'
+                },
+                hoverable: false
+            };
+            this._startMask = new RectangleShape(this._startMask);
+            this._endMask = new RectangleShape(this._endMask);
+            this.shapeList.push(this._startMask);
+            this.shapeList.push(this._endMask);
+        },
+        _buildBackground: function () {
+            var padding = this.reformCssArray(this.dataRangeOption.padding);
+            this.shapeList.push(new RectangleShape({
+                zlevel: this.getZlevelBase(),
+                z: this.getZBase(),
+                hoverable: false,
+                style: {
+                    x: this._itemGroupLocation.x - padding[3],
+                    y: this._itemGroupLocation.y - padding[0],
+                    width: this._itemGroupLocation.width + padding[3] + padding[1],
+                    height: this._itemGroupLocation.height + padding[0] + padding[2],
+                    brushType: this.dataRangeOption.borderWidth === 0 ? 'fill' : 'both',
+                    color: this.dataRangeOption.backgroundColor,
+                    strokeColor: this.dataRangeOption.borderColor,
+                    lineWidth: this.dataRangeOption.borderWidth
+                }
+            }));
+        },
+        _getItemGroupLocation: function () {
+            var data = this._valueTextList;
+            var dataLength = data.length;
+            var itemGap = this.dataRangeOption.itemGap;
+            var itemWidth = this.dataRangeOption.itemWidth;
+            var itemHeight = this.dataRangeOption.itemHeight;
+            var totalWidth = 0;
+            var totalHeight = 0;
+            var font = this.getFont(this.dataRangeOption.textStyle);
+            var textHeight = zrArea.getTextHeight('国', font);
+            var mSize = 10;
+            if (this.dataRangeOption.orient == 'horizontal') {
+                if (this.dataRangeOption.text || this._isContinuity()) {
+                    totalWidth = (this._isContinuity() ? itemWidth * mSize + itemGap : dataLength * (itemWidth + itemGap)) + (this.dataRangeOption.text && typeof this.dataRangeOption.text[0] != 'undefined' ? zrArea.getTextWidth(this.dataRangeOption.text[0], font) + this._textGap : 0) + (this.dataRangeOption.text && typeof this.dataRangeOption.text[1] != 'undefined' ? zrArea.getTextWidth(this.dataRangeOption.text[1], font) + this._textGap : 0);
+                } else {
+                    itemWidth += 5;
+                    for (var i = 0; i < dataLength; i++) {
+                        totalWidth += itemWidth + zrArea.getTextWidth(data[i], font) + itemGap;
+                    }
+                }
+                totalWidth -= itemGap;
+                totalHeight = Math.max(textHeight, itemHeight);
+            } else {
+                var maxWidth;
+                if (this.dataRangeOption.text || this._isContinuity()) {
+                    totalHeight = (this._isContinuity() ? itemHeight * mSize + itemGap : dataLength * (itemHeight + itemGap)) + (this.dataRangeOption.text && typeof this.dataRangeOption.text[0] != 'undefined' ? this._textGap + textHeight : 0) + (this.dataRangeOption.text && typeof this.dataRangeOption.text[1] != 'undefined' ? this._textGap + textHeight : 0);
+                    maxWidth = Math.max(zrArea.getTextWidth(this.dataRangeOption.text && this.dataRangeOption.text[0] || '', font), zrArea.getTextWidth(this.dataRangeOption.text && this.dataRangeOption.text[1] || '', font));
+                    totalWidth = Math.max(itemWidth, maxWidth);
+                } else {
+                    totalHeight = (itemHeight + itemGap) * dataLength;
+                    itemWidth += 5;
+                    maxWidth = 0;
+                    for (var i = 0; i < dataLength; i++) {
+                        maxWidth = Math.max(maxWidth, zrArea.getTextWidth(data[i], font));
+                    }
+                    totalWidth = itemWidth + maxWidth;
+                }
+                totalHeight -= itemGap;
+            }
+            var padding = this.reformCssArray(this.dataRangeOption.padding);
+            var x;
+            var zrWidth = this.zr.getWidth();
+            switch (this.dataRangeOption.x) {
+            case 'center':
+                x = Math.floor((zrWidth - totalWidth) / 2);
+                break;
+            case 'left':
+                x = padding[3] + this.dataRangeOption.borderWidth;
+                break;
+            case 'right':
+                x = zrWidth - totalWidth - padding[1] - this.dataRangeOption.borderWidth;
+                break;
+            default:
+                x = this.parsePercent(this.dataRangeOption.x, zrWidth);
+                x = isNaN(x) ? 0 : x;
+                break;
+            }
+            var y;
+            var zrHeight = this.zr.getHeight();
+            switch (this.dataRangeOption.y) {
+            case 'top':
+                y = padding[0] + this.dataRangeOption.borderWidth;
+                break;
+            case 'bottom':
+                y = zrHeight - totalHeight - padding[2] - this.dataRangeOption.borderWidth;
+                break;
+            case 'center':
+                y = Math.floor((zrHeight - totalHeight) / 2);
+                break;
+            default:
+                y = this.parsePercent(this.dataRangeOption.y, zrHeight);
+                y = isNaN(y) ? 0 : y;
+                break;
+            }
+            if (this.dataRangeOption.calculable) {
+                var handlerWidth = Math.max(zrArea.getTextWidth(this.dataRangeOption.max, font), zrArea.getTextWidth(this.dataRangeOption.min, font)) + textHeight;
+                if (this.dataRangeOption.orient == 'horizontal') {
+                    if (x < handlerWidth) {
+                        x = handlerWidth;
+                    }
+                    if (x + totalWidth + handlerWidth > zrWidth) {
+                        x -= handlerWidth;
+                    }
+                } else {
+                    if (y < textHeight) {
+                        y = textHeight;
+                    }
+                    if (y + totalHeight + textHeight > zrHeight) {
+                        y -= textHeight;
+                    }
+                }
+            }
+            return {
+                x: x,
+                y: y,
+                width: totalWidth,
+                height: totalHeight
+            };
+        },
+        _getTextShape: function (x, y, text) {
+            return {
+                zlevel: this.getZlevelBase(),
+                z: this.getZBase(),
+                style: {
+                    x: this.dataRangeOption.orient == 'horizontal' ? x : this._itemGroupLocation.x + this._itemGroupLocation.width / 2,
+                    y: this.dataRangeOption.orient == 'horizontal' ? this._itemGroupLocation.y + this._itemGroupLocation.height / 2 : y,
+                    color: this.dataRangeOption.textStyle.color,
+                    text: text,
+                    textFont: this.getFont(this.dataRangeOption.textStyle),
+                    textBaseline: this.dataRangeOption.orient == 'horizontal' ? 'middle' : 'top',
+                    textAlign: this.dataRangeOption.orient == 'horizontal' ? 'left' : 'center'
+                },
+                hoverable: false
+            };
+        },
+        _getItemShape: function (x, y, width, height, color) {
+            return {
+                zlevel: this.getZlevelBase(),
+                z: this.getZBase(),
+                style: {
+                    x: x,
+                    y: y + 1,
+                    width: width,
+                    height: height - 2,
+                    color: color
+                },
+                highlightStyle: {
+                    strokeColor: color,
+                    lineWidth: 1
+                }
+            };
+        },
+        __ondrift: function (shape, dx, dy) {
+            var x = this._calculableLocation.x;
+            var y = this._calculableLocation.y;
+            var width = this._calculableLocation.width;
+            var height = this._calculableLocation.height;
+            if (this.dataRangeOption.orient == 'horizontal') {
+                if (shape.style.x + dx <= x) {
+                    shape.style.x = x;
+                } else if (shape.style.x + dx + shape.style.width >= x + width) {
+                    shape.style.x = x + width - shape.style.width;
+                } else {
+                    shape.style.x += dx;
+                }
+            } else {
+                if (shape.style.y + dy <= y) {
+                    shape.style.y = y;
+                } else if (shape.style.y + dy + shape.style.height >= y + height) {
+                    shape.style.y = y + height - shape.style.height;
+                } else {
+                    shape.style.y += dy;
+                }
+            }
+            if (shape._type == 'filler') {
+                this._syncHandleShape();
+            } else {
+                this._syncFillerShape(shape);
+            }
+            if (this.dataRangeOption.realtime) {
+                this._dispatchDataRange();
+            }
+            return true;
+        },
+        __ondragend: function () {
+            this.isDragend = true;
+        },
+        ondragend: function (param, status) {
+            if (!this.isDragend || !param.target) {
+                return;
+            }
+            status.dragOut = true;
+            status.dragIn = true;
+            if (!this.dataRangeOption.realtime) {
+                this._dispatchDataRange();
+            }
+            status.needRefresh = false;
+            this.isDragend = false;
+            return;
+        },
+        _syncShapeFromRange: function () {
+            var range = this.dataRangeOption.range || {};
+            var optRangeStart = range.start;
+            var optRangeEnd = range.end;
+            if (optRangeEnd < optRangeStart) {
+                optRangeStart = [
+                    optRangeEnd,
+                    optRangeEnd = optRangeStart
+                ][0];
+            }
+            this._range.end = optRangeStart != null ? optRangeStart : this._range.end != null ? this._range.end : 0;
+            this._range.start = optRangeEnd != null ? optRangeEnd : this._range.start != null ? this._range.start : 100;
+            if (this._range.start != 100 || this._range.end !== 0) {
+                if (this.dataRangeOption.orient == 'horizontal') {
+                    var width = this._fillerShape.style.width;
+                    this._fillerShape.style.x += width * (100 - this._range.start) / 100;
+                    this._fillerShape.style.width = width * (this._range.start - this._range.end) / 100;
+                } else {
+                    var height = this._fillerShape.style.height;
+                    this._fillerShape.style.y += height * (100 - this._range.start) / 100;
+                    this._fillerShape.style.height = height * (this._range.start - this._range.end) / 100;
+                }
+                this.zr.modShape(this._fillerShape.id);
+                this._syncHandleShape();
+            }
+        },
+        _syncHandleShape: function () {
+            var x = this._calculableLocation.x;
+            var y = this._calculableLocation.y;
+            var width = this._calculableLocation.width;
+            var height = this._calculableLocation.height;
+            if (this.dataRangeOption.orient == 'horizontal') {
+                this._startShape.style.x = this._fillerShape.style.x;
+                this._startMask.style.width = this._startShape.style.x - x;
+                this._endShape.style.x = this._fillerShape.style.x + this._fillerShape.style.width;
+                this._endMask.style.x = this._endShape.style.x;
+                this._endMask.style.width = x + width - this._endShape.style.x;
+                this._range.start = Math.ceil(100 - (this._startShape.style.x - x) / width * 100);
+                this._range.end = Math.floor(100 - (this._endShape.style.x - x) / width * 100);
+            } else {
+                this._startShape.style.y = this._fillerShape.style.y;
+                this._startMask.style.height = this._startShape.style.y - y;
+                this._endShape.style.y = this._fillerShape.style.y + this._fillerShape.style.height;
+                this._endMask.style.y = this._endShape.style.y;
+                this._endMask.style.height = y + height - this._endShape.style.y;
+                this._range.start = Math.ceil(100 - (this._startShape.style.y - y) / height * 100);
+                this._range.end = Math.floor(100 - (this._endShape.style.y - y) / height * 100);
+            }
+            this._syncShape();
+        },
+        _syncFillerShape: function (e) {
+            var x = this._calculableLocation.x;
+            var y = this._calculableLocation.y;
+            var width = this._calculableLocation.width;
+            var height = this._calculableLocation.height;
+            var a;
+            var b;
+            if (this.dataRangeOption.orient == 'horizontal') {
+                a = this._startShape.style.x;
+                b = this._endShape.style.x;
+                if (e.id == this._startShape.id && a >= b) {
+                    b = a;
+                    this._endShape.style.x = a;
+                } else if (e.id == this._endShape.id && a >= b) {
+                    a = b;
+                    this._startShape.style.x = a;
+                }
+                this._fillerShape.style.x = a;
+                this._fillerShape.style.width = b - a;
+                this._startMask.style.width = a - x;
+                this._endMask.style.x = b;
+                this._endMask.style.width = x + width - b;
+                this._range.start = Math.ceil(100 - (a - x) / width * 100);
+                this._range.end = Math.floor(100 - (b - x) / width * 100);
+            } else {
+                a = this._startShape.style.y;
+                b = this._endShape.style.y;
+                if (e.id == this._startShape.id && a >= b) {
+                    b = a;
+                    this._endShape.style.y = a;
+                } else if (e.id == this._endShape.id && a >= b) {
+                    a = b;
+                    this._startShape.style.y = a;
+                }
+                this._fillerShape.style.y = a;
+                this._fillerShape.style.height = b - a;
+                this._startMask.style.height = a - y;
+                this._endMask.style.y = b;
+                this._endMask.style.height = y + height - b;
+                this._range.start = Math.ceil(100 - (a - y) / height * 100);
+                this._range.end = Math.floor(100 - (b - y) / height * 100);
+            }
+            this._syncShape();
+        },
+        _syncShape: function () {
+            this._startShape.position = [
+                this._startShape.style.x - this._startShape.style._x,
+                this._startShape.style.y - this._startShape.style._y
+            ];
+            this._startShape.style.text = this._textFormat(this._gap * this._range.start + this.dataRangeOption.min);
+            this._startShape.style.color = this._startShape.highlightStyle.strokeColor = this.getColor(this._gap * this._range.start + this.dataRangeOption.min);
+            this._endShape.position = [
+                this._endShape.style.x - this._endShape.style._x,
+                this._endShape.style.y - this._endShape.style._y
+            ];
+            this._endShape.style.text = this._textFormat(this._gap * this._range.end + this.dataRangeOption.min);
+            this._endShape.style.color = this._endShape.highlightStyle.strokeColor = this.getColor(this._gap * this._range.end + this.dataRangeOption.min);
+            this.zr.modShape(this._startShape.id);
+            this.zr.modShape(this._endShape.id);
+            this.zr.modShape(this._startMask.id);
+            this.zr.modShape(this._endMask.id);
+            this.zr.modShape(this._fillerShape.id);
+            this.zr.refreshNextFrame();
+        },
+        _dispatchDataRange: function () {
+            this.messageCenter.dispatch(ecConfig.EVENT.DATA_RANGE, null, {
+                range: {
+                    start: this._range.end,
+                    end: this._range.start
+                }
+            }, this.myChart);
+        },
+        __dataRangeSelected: function (param) {
+            if (this.dataRangeOption.selectedMode === 'single') {
+                for (var k in this._selectedMap) {
+                    this._selectedMap[k] = false;
+                }
+            }
+            var idx = param.target._idx;
+            this._selectedMap[idx] = !this._selectedMap[idx];
+            var valueMax;
+            var valueMin;
+            if (this._useCustomizedSplit()) {
+                valueMax = this._splitList[idx].max;
+                valueMin = this._splitList[idx].min;
+            } else {
+                valueMax = (this._colorList.length - idx) * this._gap + this.dataRangeOption.min;
+                valueMin = valueMax - this._gap;
+            }
+            this.messageCenter.dispatch(ecConfig.EVENT.DATA_RANGE_SELECTED, param.event, {
+                selected: this._selectedMap,
+                target: idx,
+                valueMax: valueMax,
+                valueMin: valueMin
+            }, this.myChart);
+            this.messageCenter.dispatch(ecConfig.EVENT.REFRESH, null, null, this.myChart);
+        },
+        __dispatchHoverLink: function (param) {
+            var valueMin;
+            var valueMax;
+            if (this.dataRangeOption.calculable) {
+                var totalValue = this.dataRangeOption.max - this.dataRangeOption.min;
+                var curValue;
+                if (this.dataRangeOption.orient == 'horizontal') {
+                    curValue = (1 - (zrEvent.getX(param.event) - this._calculableLocation.x) / this._calculableLocation.width) * totalValue;
+                } else {
+                    curValue = (1 - (zrEvent.getY(param.event) - this._calculableLocation.y) / this._calculableLocation.height) * totalValue;
+                }
+                valueMin = curValue - totalValue * 0.05;
+                valueMax = curValue + totalValue * 0.05;
+            } else if (this._useCustomizedSplit()) {
+                var idx = param.target._idx;
+                valueMax = this._splitList[idx].max;
+                valueMin = this._splitList[idx].min;
+            } else {
+                var idx = param.target._idx;
+                valueMax = (this._colorList.length - idx) * this._gap + this.dataRangeOption.min;
+                valueMin = valueMax - this._gap;
+            }
+            this.messageCenter.dispatch(ecConfig.EVENT.DATA_RANGE_HOVERLINK, param.event, {
+                valueMin: valueMin,
+                valueMax: valueMax
+            }, this.myChart);
+        },
+        __onhoverlink: function (param) {
+            if (this.dataRangeOption.show && this.dataRangeOption.hoverLink && this._indicatorShape && param && param.seriesIndex != null && param.dataIndex != null) {
+                var curValue = param.value;
+                if (curValue === '' || isNaN(curValue)) {
+                    return;
+                }
+                if (curValue < this.dataRangeOption.min) {
+                    curValue = this.dataRangeOption.min;
+                } else if (curValue > this.dataRangeOption.max) {
+                    curValue = this.dataRangeOption.max;
+                }
+                if (this.dataRangeOption.orient == 'horizontal') {
+                    this._indicatorShape.position = [
+                        (this.dataRangeOption.max - curValue) / (this.dataRangeOption.max - this.dataRangeOption.min) * this._calculableLocation.width,
+                        0
+                    ];
+                } else {
+                    this._indicatorShape.position = [
+                        0,
+                        (this.dataRangeOption.max - curValue) / (this.dataRangeOption.max - this.dataRangeOption.min) * this._calculableLocation.height
+                    ];
+                }
+                this._indicatorShape.style.text = this._textFormat(param.value);
+                this._indicatorShape.style.color = this.getColor(curValue);
+                this.zr.addHoverShape(this._indicatorShape);
+            }
+        },
+        _textFormat: function (valueStart, valueEnd) {
+            var dataRangeOption = this.dataRangeOption;
+            if (valueStart !== -Number.MAX_VALUE) {
+                valueStart = (+valueStart).toFixed(dataRangeOption.precision);
+            }
+            if (valueEnd != null && valueEnd !== Number.MAX_VALUE) {
+                valueEnd = (+valueEnd).toFixed(dataRangeOption.precision);
+            }
+            if (dataRangeOption.formatter) {
+                if (typeof dataRangeOption.formatter == 'string') {
+                    return dataRangeOption.formatter.replace('{value}', valueStart === -Number.MAX_VALUE ? 'min' : valueStart).replace('{value2}', valueEnd === Number.MAX_VALUE ? 'max' : valueEnd);
+                } else if (typeof dataRangeOption.formatter == 'function') {
+                    return dataRangeOption.formatter.call(this.myChart, valueStart, valueEnd);
+                }
+            }
+            if (valueEnd == null) {
+                return valueStart;
+            } else {
+                if (valueStart === -Number.MAX_VALUE) {
+                    return '< ' + valueEnd;
+                } else if (valueEnd === Number.MAX_VALUE) {
+                    return '> ' + valueStart;
+                } else {
+                    return valueStart + ' - ' + valueEnd;
+                }
+            }
+        },
+        _isContinuity: function () {
+            var dataRangeOption = this.dataRangeOption;
+            return !(dataRangeOption.splitList ? dataRangeOption.splitList.length > 0 : dataRangeOption.splitNumber > 0) || dataRangeOption.calculable;
+        },
+        _useCustomizedSplit: function () {
+            var dataRangeOption = this.dataRangeOption;
+            return dataRangeOption.splitList && dataRangeOption.splitList.length > 0;
+        },
+        _buildColorList: function (splitNumber) {
+            this._colorList = zrColor.getGradientColors(this.dataRangeOption.color, Math.max((splitNumber - this.dataRangeOption.color.length) / (this.dataRangeOption.color.length - 1), 0) + 1);
+            if (this._colorList.length > splitNumber) {
+                var len = this._colorList.length;
+                var newColorList = [this._colorList[0]];
+                var step = len / (splitNumber - 1);
+                for (var i = 1; i < splitNumber - 1; i++) {
+                    newColorList.push(this._colorList[Math.floor(i * step)]);
+                }
+                newColorList.push(this._colorList[len - 1]);
+                this._colorList = newColorList;
+            }
+            if (this._useCustomizedSplit()) {
+                var splitList = this._splitList;
+                for (var i = 0, len = splitList.length; i < len; i++) {
+                    if (splitList[i].color) {
+                        this._colorList[i] = splitList[i].color;
+                    }
+                }
+            }
+        },
+        _buildGap: function (splitNumber) {
+            if (!this._useCustomizedSplit()) {
+                var precision = this.dataRangeOption.precision;
+                this._gap = (this.dataRangeOption.max - this.dataRangeOption.min) / splitNumber;
+                while (this._gap.toFixed(precision) - 0 != this._gap && precision < 5) {
+                    precision++;
+                }
+                this.dataRangeOption.precision = precision;
+                this._gap = ((this.dataRangeOption.max - this.dataRangeOption.min) / splitNumber).toFixed(precision) - 0;
+            }
+        },
+        _buildDataList: function (splitNumber) {
+            var valueTextList = this._valueTextList = [];
+            var dataRangeOption = this.dataRangeOption;
+            var useCustomizedSplit = this._useCustomizedSplit();
+            for (var i = 0; i < splitNumber; i++) {
+                this._selectedMap[i] = true;
+                var text = '';
+                if (useCustomizedSplit) {
+                    var splitListItem = this._splitList[splitNumber - 1 - i];
+                    if (splitListItem.label != null) {
+                        text = splitListItem.label;
+                    } else if (splitListItem.single != null) {
+                        text = this._textFormat(splitListItem.single);
+                    } else {
+                        text = this._textFormat(splitListItem.min, splitListItem.max);
+                    }
+                } else {
+                    text = this._textFormat(i * this._gap + dataRangeOption.min, (i + 1) * this._gap + dataRangeOption.min);
+                }
+                valueTextList.unshift(text);
+            }
+        },
+        _buildSplitList: function () {
+            if (!this._useCustomizedSplit()) {
+                return;
+            }
+            var splitList = this.dataRangeOption.splitList;
+            var splitRangeList = this._splitList = [];
+            for (var i = 0, len = splitList.length; i < len; i++) {
+                var splitListItem = splitList[i];
+                if (!splitListItem || splitListItem.start == null && splitListItem.end == null) {
+                    throw new Error('Empty item exists in splitList!');
+                }
+                var reformedItem = {
+                    label: splitListItem.label,
+                    color: splitListItem.color
+                };
+                reformedItem.min = splitListItem.start;
+                reformedItem.max = splitListItem.end;
+                if (reformedItem.min > reformedItem.max) {
+                    reformedItem.min = [
+                        reformedItem.max,
+                        reformedItem.max = reformedItem.min
+                    ][0];
+                }
+                if (reformedItem.min === reformedItem.max) {
+                    reformedItem.single = reformedItem.max;
+                }
+                if (reformedItem.min == null) {
+                    reformedItem.min = -Number.MAX_VALUE;
+                }
+                if (reformedItem.max == null) {
+                    reformedItem.max = Number.MAX_VALUE;
+                }
+                splitRangeList.push(reformedItem);
+            }
+        },
+        refresh: function (newOption) {
+            if (newOption) {
+                this.option = newOption;
+                this.option.dataRange = this.reformOption(this.option.dataRange);
+                var dataRangeOption = this.dataRangeOption = this.option.dataRange;
+                if (!this._useCustomizedSplit() && (dataRangeOption.min == null || dataRangeOption.max == null)) {
+                    throw new Error('option.dataRange.min or option.dataRange.max has not been defined.');
+                }
+                if (!this.myChart.canvasSupported) {
+                    dataRangeOption.realtime = false;
+                }
+                var splitNumber = this._isContinuity() ? 100 : this._useCustomizedSplit() ? dataRangeOption.splitList.length : dataRangeOption.splitNumber;
+                this._buildSplitList();
+                this._buildColorList(splitNumber);
+                this._buildGap(splitNumber);
+                this._buildDataList(splitNumber);
+            }
+            this.clear();
+            this._buildShape();
+        },
+        getColor: function (value) {
+            if (isNaN(value)) {
+                return null;
+            }
+            var idx;
+            if (!this._useCustomizedSplit()) {
+                if (this.dataRangeOption.min == this.dataRangeOption.max) {
+                    return this._colorList[0];
+                }
+                if (value < this.dataRangeOption.min) {
+                    value = this.dataRangeOption.min;
+                } else if (value > this.dataRangeOption.max) {
+                    value = this.dataRangeOption.max;
+                }
+                if (this.dataRangeOption.calculable) {
+                    if (value - (this._gap * this._range.start + this.dataRangeOption.min) > 0.00005 || value - (this._gap * this._range.end + this.dataRangeOption.min) < -0.00005) {
+                        return null;
+                    }
+                }
+                idx = this._colorList.length - Math.ceil((value - this.dataRangeOption.min) / (this.dataRangeOption.max - this.dataRangeOption.min) * this._colorList.length);
+                if (idx == this._colorList.length) {
+                    idx--;
+                }
+            } else {
+                var splitRangeList = this._splitList;
+                for (var i = 0, len = splitRangeList.length; i < len; i++) {
+                    if (splitRangeList[i].min <= value && splitRangeList[i].max >= value) {
+                        idx = i;
+                        break;
+                    }
+                }
+            }
+            if (this._selectedMap[idx]) {
+                return this._colorList[idx];
+            } else {
+                return null;
+            }
+        },
+        getColorByIndex: function (idx) {
+            if (idx >= this._colorList.length) {
+                idx = this._colorList.length - 1;
+            } else if (idx < 0) {
+                idx = 0;
+            }
+            return this._colorList[idx];
+        },
+        onbeforDispose: function () {
+            this.messageCenter.unbind(ecConfig.EVENT.HOVER, this._onhoverlink);
+        }
+    };
+    zrUtil.inherits(DataRange, Base);
+    require('../component').define('dataRange', DataRange);
+    return DataRange;
+});define('echarts/layout/WordCloudRectZero', ['require'], function (require) {
+    function ZeroArray(option) {
+        this.defaultOption = { type: 'RECT' };
+        this._init(option);
+    }
+    ZeroArray.prototype = {
+        RECT: '_calculateRect',
+        _init: function (option) {
+            this._initOption(option);
+            this._initCanvas();
+        },
+        _initOption: function (option) {
+            for (k in option) {
+                this.defaultOption[k] = option[k];
+            }
+        },
+        _initCanvas: function () {
+            var canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            var ratio = Math.sqrt(canvas.getContext('2d').getImageData(0, 0, 1, 1).data.length >> 2);
+            canvas.width = this.defaultOption.width;
+            canvas.height = this.defaultOption.height;
+            if (canvas.getContext) {
+                var ctx = canvas.getContext('2d');
+            }
+            this.canvas = canvas;
+            this.ctx = ctx;
+            this.ratio = ratio;
+        },
+        calculate: function (callback, callbackObj) {
+            var calType = this.defaultOption.type, calmethod = this[calType];
+            this[calmethod].call(this, callback, callbackObj);
+        },
+        _calculateReturn: function (result, callback, callbackObj) {
+            callback.call(callbackObj, result);
+        },
+        _calculateRect: function (callback, callbackObj) {
+            var result = {}, width = this.defaultOption.width >> 5 << 5, height = this.defaultOption.height;
+            result.initarr = this._rectZeroArray(width * height);
+            result.area = width * height;
+            result.maxHit = height;
+            result.maxWit = width;
+            result.imgboard = this._rectBoard(width, height);
+            this._calculateReturn(result, callback, callbackObj);
+        },
+        _rectBoard: function (width, height) {
+            var row = [];
+            for (var i = 0; i < height; i++) {
+                row.push({
+                    y: i,
+                    start: 0,
+                    end: width
+                });
+            }
+            var cloumn = [];
+            for (var i = 0; i < width; i++) {
+                cloumn.push({
+                    x: i,
+                    start: 0,
+                    end: height
+                });
+            }
+            return {
+                row: row,
+                cloumn: cloumn
+            };
+        },
+        _rectZeroArray: function (num) {
+            var a = [], n = num, i = -1;
+            while (++i < n)
+                a[i] = 0;
+            return a;
+        }
+    };
+    return ZeroArray;
+});define('echarts/util/shape/HandlePolygon', [
+    'require',
+    'zrender/shape/Base',
+    'zrender/shape/Polygon',
+    'zrender/tool/util'
+], function (require) {
+    var Base = require('zrender/shape/Base');
+    var PolygonShape = require('zrender/shape/Polygon');
+    var zrUtil = require('zrender/tool/util');
+    function HandlePolygon(options) {
+        Base.call(this, options);
+    }
+    HandlePolygon.prototype = {
+        type: 'handle-polygon',
+        buildPath: function (ctx, style) {
+            PolygonShape.prototype.buildPath(ctx, style);
+        },
+        isCover: function (x, y) {
+            var originPos = this.transformCoordToLocal(x, y);
+            x = originPos[0];
+            y = originPos[1];
+            var rect = this.style.rect;
+            if (x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+    zrUtil.inherits(HandlePolygon, Base);
+    return HandlePolygon;
+});

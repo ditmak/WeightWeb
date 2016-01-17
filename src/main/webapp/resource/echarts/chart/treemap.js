@@ -1,1 +1,632 @@
-define("echarts/chart/treemap",["require","./base","zrender/tool/area","zrender/shape/Rectangle","zrender/shape/Text","zrender/shape/Line","../layout/TreeMap","../data/Tree","../config","../util/ecData","zrender/config","zrender/tool/event","zrender/tool/util","zrender/tool/color","../chart"],function(e){function t(e,t,n,a,o){i.call(this,e,t,n,a,o),this.refresh(a);var r=this;r._onclick=function(e){return r.__onclick(e)},r.zr.on(V.EVENT.CLICK,r._onclick)}var i=e("./base"),n=e("zrender/tool/area"),a=e("zrender/shape/Rectangle"),o=e("zrender/shape/Text"),r=e("zrender/shape/Line"),s=e("../layout/TreeMap"),l=e("../data/Tree"),h=e("../config");h.treemap={zlevel:0,z:1,calculable:!1,clickable:!0,center:["50%","50%"],size:["80%","80%"],root:"",itemStyle:{normal:{label:{show:!0,x:5,y:12,textStyle:{align:"left",color:"#000",fontFamily:"Arial",fontSize:13,fontStyle:"normal",fontWeight:"normal"}},breadcrumb:{show:!0,textStyle:{}},borderWidth:1,borderColor:"#ccc",childBorderWidth:1,childBorderColor:"#ccc"},emphasis:{}}};var m=e("../util/ecData"),V=e("zrender/config"),U=(e("zrender/tool/event"),e("zrender/tool/util")),d=e("zrender/tool/color");return t.prototype={type:h.CHART_TYPE_TREEMAP,refresh:function(e){this.clear(),e&&(this.option=e,this.series=this.option.series),this._treesMap={};for(var t=this.series,i=this.component.legend,n=0;n<t.length;n++)if(t[n].type===h.CHART_TYPE_TREEMAP){t[n]=this.reformOption(t[n]);var a=t[n].name||"";if(this.selectedMap[a]=i?i.isSelected(a):!0,!this.selectedMap[a])continue;this._buildSeries(t[n],n)}},_buildSeries:function(e,t){var i=l.fromOptionData(e.name,e.data);this._treesMap[t]=i;var n=e.root&&i.getNodeById(e.root)||i.root;this._buildTreemap(n,t)},_buildTreemap:function(e,t){for(var i=this.shapeList,n=0;n<i.length;){var a=i[n];m.get(a,"seriesIndex")===t?(this.zr.delShape(i[n]),i.splice(n,1)):n++}for(var o=i.length,r=this.series[t],l=r.itemStyle,h=this.parsePercent(r.size[0],this.zr.getWidth())||400,V=this.parsePercent(r.size[1],this.zr.getHeight())||500,U=this.parseCenter(this.zr,r.center),d=U[0]-.5*h,p=U[1]-.5*V,c=h*V,u=0,y=[],g=e.children,n=0;n<g.length;n++)u+=g[n].data.value;for(var b=0;b<g.length;b++)y.push(g[b].data.value*c/u);for(var f=new s({x:d,y:p,width:h,height:V}),k=f.run(y),_=0;_<k.length;_++){var x=g[_].data,L=k[_],W=[x.itemStyle,l],X=this.deepMerge(W);X.normal.color||(X.normal.color=this.zr.getColor(_)),X.emphasis.color||(X.emphasis.color=X.normal.color),this._buildItem(x,X,L,t,_),x.children&&this._buildChildrenTreemap(x.children,X,L,t)}this.query(r,"itemStyle.normal.breadcrumb.show")&&this._buildBreadcrumb(e,t,d,p+V);for(var n=o;n<i.length;n++)this.zr.addShape(i[n])},_buildItem:function(e,t,i,n,a){var o=this.series,r=this.getRectangle(e,t,i);m.pack(r,o[n],n,e,a,e.name),this.shapeList.push(r)},getRectangle:function(e,t,i){var n=t.emphasis,o=t.normal,r=this.getLabel(t,i,e.name,e.value),s=this.option.hoverable,l={zlevel:this.getZlevelBase(),z:this.getZBase(),hoverable:s,clickable:!0,style:U.merge({x:i.x,y:i.y,width:i.width,height:i.height,brushType:"both",color:o.color,lineWidth:o.borderWidth,strokeColor:o.borderColor},r.style,!0),highlightStyle:U.merge({color:n.color,lineWidth:n.borderWidth,strokeColor:n.borderColor},r.highlightStyle,!0)};return new a(l)},getLabel:function(e,t,i,a){var o=e.normal.label.textStyle,r=[e.emphasis.label.textStyle,o],s=this.deepMerge(r),l=e.normal.label.formatter,h=this.getLabelText(i,a,l),m=this.getFont(o),V=n.getTextWidth(h,m),U=n.getTextHeight(h,m),d=this.deepQuery([e.emphasis,e.normal],"label.formatter"),p=this.getLabelText(i,a,d),c=this.getFont(s),u=n.getTextWidth(h,c),y=n.getTextHeight(h,c);e.normal.label.show?(e.normal.label.x+V>t.width||e.normal.label.y+U>t.height)&&(h=""):h="",e.emphasis.label.show?(s.x+u>t.width||s.y+y>t.height)&&(p=""):p="";var g={style:{textX:t.x+e.normal.label.x,textY:t.y+e.normal.label.y,text:h,textPosition:"specific",textColor:o.color,textFont:m},highlightStyle:{textX:t.x+e.emphasis.label.x,textY:t.y+e.emphasis.label.y,text:p,textColor:s.color,textPosition:"specific"}};return g},getLabelText:function(e,t,i){return i?"function"==typeof i?i.call(this.myChart,e,t):"string"==typeof i?(i=i.replace("{b}","{b0}").replace("{c}","{c0}"),i=i.replace("{b0}",e).replace("{c0}",t)):void 0:e},_buildChildrenTreemap:function(e,t,i,n){for(var a=i.width*i.height,o=0,r=[],l=0;l<e.length;l++)o+=e[l].value;for(var h=0;h<e.length;h++)r.push(e[h].value*a/o);for(var V=new s({x:i.x,y:i.y,width:i.width,height:i.height}),U=V.run(r),d=t.normal.childBorderWidth,p=t.normal.childBorderColor,c=0;c<U.length;c++){var u=U[c],y=[];i.y.toFixed(2)!==u.y.toFixed(2)&&y.push(this._getLine(u.x,u.y,u.x+u.width,u.y,d,p)),i.x.toFixed(2)!==u.x.toFixed(2)&&y.push(this._getLine(u.x,u.y,u.x,u.y+u.height,d,p)),(i.y+i.height).toFixed(2)!==(u.y+u.height).toFixed(2)&&y.push(this._getLine(u.x,u.y+u.height,u.x+u.width,u.y+u.height,d,p)),(i.x+i.width).toFixed(2)!==(u.x+u.width).toFixed(2)&&y.push(this._getLine(u.x+u.width,u.y,u.x+u.width,u.y+u.height,d,p));for(var g=0;g<y.length;g++)m.set(y[g],"seriesIndex",n),this.shapeList.push(y[g])}},_getLine:function(e,t,i,n,a,o){var s={zlevel:this.getZlevelBase(),z:this.getZBase(),hoverable:!1,style:{xStart:e,yStart:t,xEnd:i,yEnd:n,lineWidth:a,strokeColor:o}};return new r(s)},_buildBreadcrumb:function(e,t,i,n){for(var a=[],r=e;r;)a.unshift(r.data.name),r=r.parent;for(var s=this.series[t],l=this.query(s,"itemStyle.normal.breadcrumb.textStyle")||{},h=this.query(s,"itemStyle.emphasis.breadcrumb.textStyle")||{},V={y:n+10,textBaseline:"top",textAlign:"left",color:l.color,textFont:this.getFont(l)},p={brushType:"fill",color:h.color||d.lift(l.color,-.3),textFont:this.getFont(h)},c=0;c<a.length;c++){var u=new o({zlevel:this.getZlevelBase(),z:this.getZBase(),style:U.merge({x:i,text:a[c]+(a.length-1-c?" > ":"")},V),clickable:!0,highlightStyle:p});m.set(u,"seriesIndex",t),m.set(u,"name",a[c]),i+=u.getRect(u.style).width,this.shapeList.push(u)}},__onclick:function(e){var t=e.target;if(t){var i=m.get(t,"seriesIndex"),n=m.get(t,"name"),a=this._treesMap[i],o=a.getNodeById(n);o&&o.children.length&&this._buildTreemap(o,i)}}},U.inherits(t,i),e("../chart").define("treemap",t),t}),define("echarts/layout/TreeMap",["require"],function(){function e(e){({x:e.x,y:e.y,width:e.width,height:e.height});this.x=e.x,this.y=e.y,this.width=e.width,this.height=e.height}return e.prototype.run=function(e){var t=[];return this._squarify(e,{x:this.x,y:this.y,width:this.width,height:this.height},t),t},e.prototype._squarify=function(e,t,i){var n="VERTICAL",a=t.width,o=t.height;t.width<t.height&&(n="HORIZONTAL",a=t.height,o=t.width);for(var r=this._getShapeListInAbstractRow(e,a,o),s=0;s<r.length;s++){r[s].x=0,r[s].y=0;for(var l=0;s>l;l++)r[s].y+=r[l].height}var h={};if("VERTICAL"==n){for(var m=0;m<r.length;m++)i.push({x:r[m].x+t.x,y:r[m].y+t.y,width:r[m].width,height:r[m].height});h={x:r[0].width+t.x,y:t.y,width:t.width-r[0].width,height:t.height}}else{for(var V=0;V<r.length;V++)i.push({x:r[V].y+t.x,y:r[V].x+t.y,width:r[V].height,height:r[V].width});h={x:t.x,y:t.y+r[0].width,width:t.width,height:t.height-r[0].width}}var U=e.slice(r.length);0!==U.length&&this._squarify(U,h,i)},e.prototype._getShapeListInAbstractRow=function(e,t,i){if(1===e.length)return[{width:t,height:i}];for(var n=1;n<e.length;n++){var a=this._placeFixedNumberRectangles(e.slice(0,n),t,i),o=this._placeFixedNumberRectangles(e.slice(0,n+1),t,i);if(this._isFirstBetter(a,o))return a}},e.prototype._placeFixedNumberRectangles=function(e,t,i){for(var n=e.length,a=[],o=0,r=0;r<e.length;r++)o+=e[r];for(var s=o/i,l=0;n>l;l++){var h=i*e[l]/o;a.push({width:s,height:h})}return a},e.prototype._isFirstBetter=function(e,t){var i=e[0].height/e[0].width;i=i>1?1/i:i;var n=t[0].height/t[0].width;return n=n>1?1/n:n,Math.abs(i-1)<=Math.abs(n-1)?!0:!1},e}),define("echarts/data/Tree",["require","zrender/tool/util"],function(e){function t(e,t){this.id=e,this.depth=0,this.height=0,this.children=[],this.parent=null,this.data=t||null}function i(e){this.root=new t(e)}var n=e("zrender/tool/util");return t.prototype.add=function(e){var t=this.children;e.parent!==this&&(t.push(e),e.parent=this)},t.prototype.remove=function(e){var t=this.children,i=n.indexOf(t,e);i>=0&&(t.splice(i,1),e.parent=null)},t.prototype.traverse=function(e,t){e.call(t,this);for(var i=0;i<this.children.length;i++)this.children[i].traverse(e,t)},t.prototype.updateDepthAndHeight=function(e){var t=0;this.depth=e;for(var i=0;i<this.children.length;i++){var n=this.children[i];n.updateDepthAndHeight(e+1),n.height>t&&(t=n.height)}this.height=t+1},t.prototype.getNodeById=function(e){if(this.id===e)return this;for(var t=0;t<this.children.length;t++){var i=this.children[t].getNodeById(e);if(i)return i}},i.prototype.traverse=function(e,t){this.root.traverse(e,t)},i.prototype.getSubTree=function(e){var t=this.getNodeById(e);if(t){var n=new i(t.id);return n.root=t,n}},i.prototype.getNodeById=function(e){return this.root.getNodeById(e)},i.fromOptionData=function(e,n){function a(e,i){var n=new t(e.name,e);i.add(n);var o=e.children;if(o)for(var r=0;r<o.length;r++)a(o[r],n)}var o=new i(e),r=o.root;r.data={name:e,children:n};for(var s=0;s<n.length;s++)a(n[s],r);return o.root.updateDepthAndHeight(0),o},i.fromGraph=function(e){function n(t){for(var i=e.getNodeById(t.id),a=0;a<i.outEdges.length;a++){var r=i.outEdges[a],s=o[r.node2.id];t.children.push(s),n(s)}}for(var a={},o={},r=0;r<e.nodes.length;r++){var s,l=e.nodes[r];0===l.inDegree()?(a[l.id]=new i(l.id),s=a[l.id].root):s=new t(l.id),s.data=l.data,o[l.id]=s}var h=[];for(var m in a)n(a[m].root),a[m].root.updateDepthAndHeight(0),h.push(a[m]);return h},i});
+define('echarts/chart/treemap', [
+    'require',
+    './base',
+    'zrender/tool/area',
+    'zrender/shape/Rectangle',
+    'zrender/shape/Text',
+    'zrender/shape/Line',
+    '../layout/TreeMap',
+    '../data/Tree',
+    '../config',
+    '../util/ecData',
+    'zrender/config',
+    'zrender/tool/event',
+    'zrender/tool/util',
+    'zrender/tool/color',
+    '../chart'
+], function (require) {
+    var ChartBase = require('./base');
+    var toolArea = require('zrender/tool/area');
+    var RectangleShape = require('zrender/shape/Rectangle');
+    var TextShape = require('zrender/shape/Text');
+    var LineShape = require('zrender/shape/Line');
+    var TreeMapLayout = require('../layout/TreeMap');
+    var Tree = require('../data/Tree');
+    var ecConfig = require('../config');
+    ecConfig.treemap = {
+        zlevel: 0,
+        z: 1,
+        calculable: false,
+        clickable: true,
+        center: [
+            '50%',
+            '50%'
+        ],
+        size: [
+            '80%',
+            '80%'
+        ],
+        root: '',
+        itemStyle: {
+            normal: {
+                label: {
+                    show: true,
+                    x: 5,
+                    y: 12,
+                    textStyle: {
+                        align: 'left',
+                        color: '#000',
+                        fontFamily: 'Arial',
+                        fontSize: 13,
+                        fontStyle: 'normal',
+                        fontWeight: 'normal'
+                    }
+                },
+                breadcrumb: {
+                    show: true,
+                    textStyle: {}
+                },
+                borderWidth: 1,
+                borderColor: '#ccc',
+                childBorderWidth: 1,
+                childBorderColor: '#ccc'
+            },
+            emphasis: {}
+        }
+    };
+    var ecData = require('../util/ecData');
+    var zrConfig = require('zrender/config');
+    var zrEvent = require('zrender/tool/event');
+    var zrUtil = require('zrender/tool/util');
+    var zrColor = require('zrender/tool/color');
+    function Treemap(ecTheme, messageCenter, zr, option, myChart) {
+        ChartBase.call(this, ecTheme, messageCenter, zr, option, myChart);
+        this.refresh(option);
+        var self = this;
+        self._onclick = function (params) {
+            return self.__onclick(params);
+        };
+        self.zr.on(zrConfig.EVENT.CLICK, self._onclick);
+    }
+    Treemap.prototype = {
+        type: ecConfig.CHART_TYPE_TREEMAP,
+        refresh: function (newOption) {
+            this.clear();
+            if (newOption) {
+                this.option = newOption;
+                this.series = this.option.series;
+            }
+            this._treesMap = {};
+            var series = this.series;
+            var legend = this.component.legend;
+            for (var i = 0; i < series.length; i++) {
+                if (series[i].type === ecConfig.CHART_TYPE_TREEMAP) {
+                    series[i] = this.reformOption(series[i]);
+                    var seriesName = series[i].name || '';
+                    this.selectedMap[seriesName] = legend ? legend.isSelected(seriesName) : true;
+                    if (!this.selectedMap[seriesName]) {
+                        continue;
+                    }
+                    this._buildSeries(series[i], i);
+                }
+            }
+        },
+        _buildSeries: function (series, seriesIndex) {
+            var tree = Tree.fromOptionData(series.name, series.data);
+            this._treesMap[seriesIndex] = tree;
+            var treeRoot = series.root && tree.getNodeById(series.root) || tree.root;
+            this._buildTreemap(treeRoot, seriesIndex);
+        },
+        _buildTreemap: function (treeRoot, seriesIndex) {
+            var shapeList = this.shapeList;
+            for (var i = 0; i < shapeList.length;) {
+                var shape = shapeList[i];
+                if (ecData.get(shape, 'seriesIndex') === seriesIndex) {
+                    this.zr.delShape(shapeList[i]);
+                    shapeList.splice(i, 1);
+                } else {
+                    i++;
+                }
+            }
+            var currentShapeLen = shapeList.length;
+            var series = this.series[seriesIndex];
+            var itemStyle = series.itemStyle;
+            var treemapWidth = this.parsePercent(series.size[0], this.zr.getWidth()) || 400;
+            var treemapHeight = this.parsePercent(series.size[1], this.zr.getHeight()) || 500;
+            var center = this.parseCenter(this.zr, series.center);
+            var treemapX = center[0] - treemapWidth * 0.5;
+            var treemapY = center[1] - treemapHeight * 0.5;
+            var treemapArea = treemapWidth * treemapHeight;
+            var sum = 0;
+            var areaArr = [];
+            var children = treeRoot.children;
+            for (var i = 0; i < children.length; i++) {
+                sum += children[i].data.value;
+            }
+            for (var j = 0; j < children.length; j++) {
+                areaArr.push(children[j].data.value * treemapArea / sum);
+            }
+            var treeMapLayout = new TreeMapLayout({
+                x: treemapX,
+                y: treemapY,
+                width: treemapWidth,
+                height: treemapHeight
+            });
+            var locationArr = treeMapLayout.run(areaArr);
+            for (var k = 0; k < locationArr.length; k++) {
+                var dataItem = children[k].data;
+                var rect = locationArr[k];
+                var queryTarget = [
+                    dataItem.itemStyle,
+                    itemStyle
+                ];
+                var itemStyleMerged = this.deepMerge(queryTarget);
+                if (!itemStyleMerged.normal.color) {
+                    itemStyleMerged.normal.color = this.zr.getColor(k);
+                }
+                if (!itemStyleMerged.emphasis.color) {
+                    itemStyleMerged.emphasis.color = itemStyleMerged.normal.color;
+                }
+                this._buildItem(dataItem, itemStyleMerged, rect, seriesIndex, k);
+                if (dataItem.children) {
+                    this._buildChildrenTreemap(dataItem.children, itemStyleMerged, rect, seriesIndex);
+                }
+            }
+            if (this.query(series, 'itemStyle.normal.breadcrumb.show')) {
+                this._buildBreadcrumb(treeRoot, seriesIndex, treemapX, treemapY + treemapHeight);
+            }
+            for (var i = currentShapeLen; i < shapeList.length; i++) {
+                this.zr.addShape(shapeList[i]);
+            }
+        },
+        _buildItem: function (dataItem, itemStyle, rect, seriesIndex, dataIndex) {
+            var series = this.series;
+            var rectangle = this.getRectangle(dataItem, itemStyle, rect);
+            ecData.pack(rectangle, series[seriesIndex], seriesIndex, dataItem, dataIndex, dataItem.name);
+            this.shapeList.push(rectangle);
+        },
+        getRectangle: function (dataItem, itemStyle, rect) {
+            var emphasis = itemStyle.emphasis;
+            var normal = itemStyle.normal;
+            var textShape = this.getLabel(itemStyle, rect, dataItem.name, dataItem.value);
+            var hoverable = this.option.hoverable;
+            var rectangleShape = {
+                zlevel: this.getZlevelBase(),
+                z: this.getZBase(),
+                hoverable: hoverable,
+                clickable: true,
+                style: zrUtil.merge({
+                    x: rect.x,
+                    y: rect.y,
+                    width: rect.width,
+                    height: rect.height,
+                    brushType: 'both',
+                    color: normal.color,
+                    lineWidth: normal.borderWidth,
+                    strokeColor: normal.borderColor
+                }, textShape.style, true),
+                highlightStyle: zrUtil.merge({
+                    color: emphasis.color,
+                    lineWidth: emphasis.borderWidth,
+                    strokeColor: emphasis.borderColor
+                }, textShape.highlightStyle, true)
+            };
+            return new RectangleShape(rectangleShape);
+        },
+        getLabel: function (itemStyle, rect, name, value) {
+            var normalTextStyle = itemStyle.normal.label.textStyle;
+            var queryTarget = [
+                itemStyle.emphasis.label.textStyle,
+                normalTextStyle
+            ];
+            var emphasisTextStyle = this.deepMerge(queryTarget);
+            var formatter = itemStyle.normal.label.formatter;
+            var text = this.getLabelText(name, value, formatter);
+            var textFont = this.getFont(normalTextStyle);
+            var textWidth = toolArea.getTextWidth(text, textFont);
+            var textHeight = toolArea.getTextHeight(text, textFont);
+            var emphasisFormatter = this.deepQuery([
+                itemStyle.emphasis,
+                itemStyle.normal
+            ], 'label.formatter');
+            var emphasisText = this.getLabelText(name, value, emphasisFormatter);
+            var emphasisTextFont = this.getFont(emphasisTextStyle);
+            var emphasisTextWidth = toolArea.getTextWidth(text, emphasisTextFont);
+            var emphasisTextHeight = toolArea.getTextHeight(text, emphasisTextFont);
+            if (!itemStyle.normal.label.show) {
+                text = '';
+            } else if (itemStyle.normal.label.x + textWidth > rect.width || itemStyle.normal.label.y + textHeight > rect.height) {
+                text = '';
+            }
+            if (!itemStyle.emphasis.label.show) {
+                emphasisText = '';
+            } else if (emphasisTextStyle.x + emphasisTextWidth > rect.width || emphasisTextStyle.y + emphasisTextHeight > rect.height) {
+                emphasisText = '';
+            }
+            var textShape = {
+                style: {
+                    textX: rect.x + itemStyle.normal.label.x,
+                    textY: rect.y + itemStyle.normal.label.y,
+                    text: text,
+                    textPosition: 'specific',
+                    textColor: normalTextStyle.color,
+                    textFont: textFont
+                },
+                highlightStyle: {
+                    textX: rect.x + itemStyle.emphasis.label.x,
+                    textY: rect.y + itemStyle.emphasis.label.y,
+                    text: emphasisText,
+                    textColor: emphasisTextStyle.color,
+                    textPosition: 'specific'
+                }
+            };
+            return textShape;
+        },
+        getLabelText: function (name, value, formatter) {
+            if (formatter) {
+                if (typeof formatter === 'function') {
+                    return formatter.call(this.myChart, name, value);
+                } else if (typeof formatter === 'string') {
+                    formatter = formatter.replace('{b}', '{b0}').replace('{c}', '{c0}');
+                    formatter = formatter.replace('{b0}', name).replace('{c0}', value);
+                    return formatter;
+                }
+            } else {
+                return name;
+            }
+        },
+        _buildChildrenTreemap: function (data, itemStyle, rect, seriesIndex) {
+            var treemapArea = rect.width * rect.height;
+            var sum = 0;
+            var areaArr = [];
+            for (var i = 0; i < data.length; i++) {
+                sum += data[i].value;
+            }
+            for (var j = 0; j < data.length; j++) {
+                areaArr.push(data[j].value * treemapArea / sum);
+            }
+            var treeMapLayout = new TreeMapLayout({
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height
+            });
+            var locationArr = treeMapLayout.run(areaArr);
+            var lineWidth = itemStyle.normal.childBorderWidth;
+            var lineColor = itemStyle.normal.childBorderColor;
+            for (var k = 0; k < locationArr.length; k++) {
+                var item = locationArr[k];
+                var lines = [];
+                if (rect.y.toFixed(2) !== item.y.toFixed(2)) {
+                    lines.push(this._getLine(item.x, item.y, item.x + item.width, item.y, lineWidth, lineColor));
+                }
+                if (rect.x.toFixed(2) !== item.x.toFixed(2)) {
+                    lines.push(this._getLine(item.x, item.y, item.x, item.y + item.height, lineWidth, lineColor));
+                }
+                if ((rect.y + rect.height).toFixed(2) !== (item.y + item.height).toFixed(2)) {
+                    lines.push(this._getLine(item.x, item.y + item.height, item.x + item.width, item.y + item.height, lineWidth, lineColor));
+                }
+                if ((rect.x + rect.width).toFixed(2) !== (item.x + item.width).toFixed(2)) {
+                    lines.push(this._getLine(item.x + item.width, item.y, item.x + item.width, item.y + item.height, lineWidth, lineColor));
+                }
+                for (var l = 0; l < lines.length; l++) {
+                    ecData.set(lines[l], 'seriesIndex', seriesIndex);
+                    this.shapeList.push(lines[l]);
+                }
+            }
+        },
+        _getLine: function (xStart, yStart, xEnd, yEnd, lineWidth, lineColor) {
+            var lineShape = {
+                zlevel: this.getZlevelBase(),
+                z: this.getZBase(),
+                hoverable: false,
+                style: {
+                    xStart: xStart,
+                    yStart: yStart,
+                    xEnd: xEnd,
+                    yEnd: yEnd,
+                    lineWidth: lineWidth,
+                    strokeColor: lineColor
+                }
+            };
+            return new LineShape(lineShape);
+        },
+        _buildBreadcrumb: function (treeRoot, seriesIndex, x, y) {
+            var stack = [];
+            var current = treeRoot;
+            while (current) {
+                stack.unshift(current.data.name);
+                current = current.parent;
+            }
+            var series = this.series[seriesIndex];
+            var textStyle = this.query(series, 'itemStyle.normal.breadcrumb.textStyle') || {};
+            var textEmphasisStyle = this.query(series, 'itemStyle.emphasis.breadcrumb.textStyle') || {};
+            var commonStyle = {
+                y: y + 10,
+                textBaseline: 'top',
+                textAlign: 'left',
+                color: textStyle.color,
+                textFont: this.getFont(textStyle)
+            };
+            var commonHighlightStyle = {
+                brushType: 'fill',
+                color: textEmphasisStyle.color || zrColor.lift(textStyle.color, -0.3),
+                textFont: this.getFont(textEmphasisStyle)
+            };
+            for (var i = 0; i < stack.length; i++) {
+                var textShape = new TextShape({
+                    zlevel: this.getZlevelBase(),
+                    z: this.getZBase(),
+                    style: zrUtil.merge({
+                        x: x,
+                        text: stack[i] + (stack.length - 1 - i ? ' > ' : '')
+                    }, commonStyle),
+                    clickable: true,
+                    highlightStyle: commonHighlightStyle
+                });
+                ecData.set(textShape, 'seriesIndex', seriesIndex);
+                ecData.set(textShape, 'name', stack[i]);
+                x += textShape.getRect(textShape.style).width;
+                this.shapeList.push(textShape);
+            }
+        },
+        __onclick: function (params) {
+            var target = params.target;
+            if (target) {
+                var seriesIndex = ecData.get(target, 'seriesIndex');
+                var name = ecData.get(target, 'name');
+                var tree = this._treesMap[seriesIndex];
+                var root = tree.getNodeById(name);
+                if (root && root.children.length) {
+                    this._buildTreemap(root, seriesIndex);
+                }
+            }
+        }
+    };
+    zrUtil.inherits(Treemap, ChartBase);
+    require('../chart').define('treemap', Treemap);
+    return Treemap;
+});define('echarts/layout/TreeMap', ['require'], function (require) {
+    function TreeMapLayout(opts) {
+        var row = {
+            x: opts.x,
+            y: opts.y,
+            width: opts.width,
+            height: opts.height
+        };
+        this.x = opts.x;
+        this.y = opts.y;
+        this.width = opts.width;
+        this.height = opts.height;
+    }
+    TreeMapLayout.prototype.run = function (areas) {
+        var out = [];
+        this._squarify(areas, {
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height
+        }, out);
+        return out;
+    };
+    TreeMapLayout.prototype._squarify = function (areas, row, out) {
+        var layoutDirection = 'VERTICAL';
+        var width = row.width;
+        var height = row.height;
+        if (row.width < row.height) {
+            layoutDirection = 'HORIZONTAL';
+            width = row.height;
+            height = row.width;
+        }
+        var shapeArr = this._getShapeListInAbstractRow(areas, width, height);
+        for (var i = 0; i < shapeArr.length; i++) {
+            shapeArr[i].x = 0;
+            shapeArr[i].y = 0;
+            for (var j = 0; j < i; j++) {
+                shapeArr[i].y += shapeArr[j].height;
+            }
+        }
+        var nextRow = {};
+        if (layoutDirection == 'VERTICAL') {
+            for (var k = 0; k < shapeArr.length; k++) {
+                out.push({
+                    x: shapeArr[k].x + row.x,
+                    y: shapeArr[k].y + row.y,
+                    width: shapeArr[k].width,
+                    height: shapeArr[k].height
+                });
+            }
+            nextRow = {
+                x: shapeArr[0].width + row.x,
+                y: row.y,
+                width: row.width - shapeArr[0].width,
+                height: row.height
+            };
+        } else {
+            for (var l = 0; l < shapeArr.length; l++) {
+                out.push({
+                    x: shapeArr[l].y + row.x,
+                    y: shapeArr[l].x + row.y,
+                    width: shapeArr[l].height,
+                    height: shapeArr[l].width
+                });
+            }
+            nextRow = {
+                x: row.x,
+                y: row.y + shapeArr[0].width,
+                width: row.width,
+                height: row.height - shapeArr[0].width
+            };
+        }
+        var nextAreaArr = areas.slice(shapeArr.length);
+        if (nextAreaArr.length === 0) {
+            return;
+        } else {
+            this._squarify(nextAreaArr, nextRow, out);
+        }
+    };
+    TreeMapLayout.prototype._getShapeListInAbstractRow = function (areas, width, height) {
+        if (areas.length === 1) {
+            return [{
+                    width: width,
+                    height: height
+                }];
+        }
+        for (var count = 1; count < areas.length; count++) {
+            var shapeArr0 = this._placeFixedNumberRectangles(areas.slice(0, count), width, height);
+            var shapeArr1 = this._placeFixedNumberRectangles(areas.slice(0, count + 1), width, height);
+            if (this._isFirstBetter(shapeArr0, shapeArr1)) {
+                return shapeArr0;
+            }
+        }
+    };
+    TreeMapLayout.prototype._placeFixedNumberRectangles = function (areaSubArr, width, height) {
+        var count = areaSubArr.length;
+        var shapeArr = [];
+        var sum = 0;
+        for (var i = 0; i < areaSubArr.length; i++) {
+            sum += areaSubArr[i];
+        }
+        var cellWidth = sum / height;
+        for (var j = 0; j < count; j++) {
+            var cellHeight = height * areaSubArr[j] / sum;
+            shapeArr.push({
+                width: cellWidth,
+                height: cellHeight
+            });
+        }
+        return shapeArr;
+    };
+    TreeMapLayout.prototype._isFirstBetter = function (shapeArr0, shapeArr1) {
+        var ratio0 = shapeArr0[0].height / shapeArr0[0].width;
+        ratio0 = ratio0 > 1 ? 1 / ratio0 : ratio0;
+        var ratio1 = shapeArr1[0].height / shapeArr1[0].width;
+        ratio1 = ratio1 > 1 ? 1 / ratio1 : ratio1;
+        if (Math.abs(ratio0 - 1) <= Math.abs(ratio1 - 1)) {
+            return true;
+        }
+        return false;
+    };
+    return TreeMapLayout;
+});define('echarts/data/Tree', [
+    'require',
+    'zrender/tool/util'
+], function (require) {
+    var zrUtil = require('zrender/tool/util');
+    function TreeNode(id, data) {
+        this.id = id;
+        this.depth = 0;
+        this.height = 0;
+        this.children = [];
+        this.parent = null;
+        this.data = data || null;
+    }
+    TreeNode.prototype.add = function (child) {
+        var children = this.children;
+        if (child.parent === this) {
+            return;
+        }
+        children.push(child);
+        child.parent = this;
+    };
+    TreeNode.prototype.remove = function (child) {
+        var children = this.children;
+        var idx = zrUtil.indexOf(children, child);
+        if (idx >= 0) {
+            children.splice(idx, 1);
+            child.parent = null;
+        }
+    };
+    TreeNode.prototype.traverse = function (cb, context) {
+        cb.call(context, this);
+        for (var i = 0; i < this.children.length; i++) {
+            this.children[i].traverse(cb, context);
+        }
+    };
+    TreeNode.prototype.updateDepthAndHeight = function (depth) {
+        var height = 0;
+        this.depth = depth;
+        for (var i = 0; i < this.children.length; i++) {
+            var child = this.children[i];
+            child.updateDepthAndHeight(depth + 1);
+            if (child.height > height) {
+                height = child.height;
+            }
+        }
+        this.height = height + 1;
+    };
+    TreeNode.prototype.getNodeById = function (id) {
+        if (this.id === id) {
+            return this;
+        }
+        for (var i = 0; i < this.children.length; i++) {
+            var res = this.children[i].getNodeById(id);
+            if (res) {
+                return res;
+            }
+        }
+    };
+    function Tree(id) {
+        this.root = new TreeNode(id);
+    }
+    Tree.prototype.traverse = function (cb, context) {
+        this.root.traverse(cb, context);
+    };
+    Tree.prototype.getSubTree = function (id) {
+        var root = this.getNodeById(id);
+        if (root) {
+            var tree = new Tree(root.id);
+            tree.root = root;
+            return tree;
+        }
+    };
+    Tree.prototype.getNodeById = function (id) {
+        return this.root.getNodeById(id);
+    };
+    Tree.fromOptionData = function (id, data) {
+        var tree = new Tree(id);
+        var rootNode = tree.root;
+        rootNode.data = {
+            name: id,
+            children: data
+        };
+        function buildHierarchy(dataNode, parentNode) {
+            var node = new TreeNode(dataNode.name, dataNode);
+            parentNode.add(node);
+            var children = dataNode.children;
+            if (children) {
+                for (var i = 0; i < children.length; i++) {
+                    buildHierarchy(children[i], node);
+                }
+            }
+        }
+        for (var i = 0; i < data.length; i++) {
+            buildHierarchy(data[i], rootNode);
+        }
+        tree.root.updateDepthAndHeight(0);
+        return tree;
+    };
+    Tree.fromGraph = function (graph) {
+        function buildHierarchy(root) {
+            var graphNode = graph.getNodeById(root.id);
+            for (var i = 0; i < graphNode.outEdges.length; i++) {
+                var edge = graphNode.outEdges[i];
+                var childTreeNode = treeNodesMap[edge.node2.id];
+                root.children.push(childTreeNode);
+                buildHierarchy(childTreeNode);
+            }
+        }
+        var treeMap = {};
+        var treeNodesMap = {};
+        for (var i = 0; i < graph.nodes.length; i++) {
+            var node = graph.nodes[i];
+            var treeNode;
+            if (node.inDegree() === 0) {
+                treeMap[node.id] = new Tree(node.id);
+                treeNode = treeMap[node.id].root;
+            } else {
+                treeNode = new TreeNode(node.id);
+            }
+            treeNode.data = node.data;
+            treeNodesMap[node.id] = treeNode;
+        }
+        var treeList = [];
+        for (var id in treeMap) {
+            buildHierarchy(treeMap[id].root);
+            treeMap[id].root.updateDepthAndHeight(0);
+            treeList.push(treeMap[id]);
+        }
+        return treeList;
+    };
+    return Tree;
+});
