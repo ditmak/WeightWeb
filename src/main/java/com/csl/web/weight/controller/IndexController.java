@@ -35,7 +35,7 @@ public class IndexController {
 	}
 
 	@RequestMapping("recordWeight.chtml")
-	public @ResponseBody String recordWeight(@RequestParam String comment,
+	public @ResponseBody String recordWeight(@RequestParam(required=false) String comment,
 			@RequestParam float weight) {
 		WeightRecord record = new WeightRecord();
 		record.setCreateTime(new Date());
