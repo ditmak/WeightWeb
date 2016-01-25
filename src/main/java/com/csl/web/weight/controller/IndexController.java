@@ -23,36 +23,39 @@ import com.github.pagehelper.PageHelper;
 @Controller
 @RequestMapping("")
 public class IndexController {
-	;
+    private static Logger log = LoggerFactory.getLogger(IndexController.class);
+    @Resource(name = "weightRecordDAO")
+    private WeightRecordDAO wrDAO;
 
-	private static Logger log = LoggerFactory.getLogger(IndexController.class);
-	@Resource(name = "weightRecordDAO")
-	private WeightRecordDAO wrDAO;
+    @RequestMapping("index.chtml")
+    public void index() {
 
-	@RequestMapping("index.chtml")
-	public void index() {
+    }
 
-	}
+    @RequestMapping("recordWeight.chtml")
+    public @ResponseBody void recordWeight(
+	    @RequestParam(required = false) String comment,
+	    @RequestParam float weight) throws IOException {
+	WeightRecord record = new WeightRecord();
+	record.setCreateTime(new Date());
+	record.setComment(comment);
+	record.setWeight(weight);
+	this.wrDAO.insertEntity(record);
+	UIResultBean bean = UIResultBean.getDataResult(SystemContext
+		.getServletContext().getContextPath() + "/view/echart.html");
+	bean.setResultOperator("redirect");
+	SystemContext.outputJson(bean);
+    }
 
-	@RequestMapping("recordWeight.chtml")
-	public @ResponseBody String recordWeight(@RequestParam(required=false) String comment,
-			@RequestParam float weight) {
-		WeightRecord record = new WeightRecord();
-		record.setCreateTime(new Date());
-		record.setComment(comment);
-		record.setWeight(weight);
-		wrDAO.insertEntity(record);
-		return "success";
-	}
-
-	@RequestMapping("/getLastRecords.chtml")
-	/*
-	 * 参数使用Integer， 原生类型会报错
-	 */
-	public @ResponseBody void getRecords(Integer size,String userID) throws IOException {
-		PageHelper.startPage(1, 7);
-		List<WeightRecord> findEntity = wrDAO.findEntity(new Conditions()
-		.orderBy("createTime", true));
-		SystemContext.outputJson(UIResultBean.getDataResult(findEntity));
-	}
+    @RequestMapping("/getLastRecords.chtml")
+    /*
+     * 参数使用Integer， 原生类型会报错
+     */
+    public @ResponseBody void getRecords(Integer size, String userID)
+	    throws IOException {
+	PageHelper.startPage(1, 7);
+	List<WeightRecord> findEntity = this.wrDAO.findEntity(new Conditions()
+	.orderBy("createTime", true));
+	SystemContext.outputJson(UIResultBean.getDataResult(findEntity));
+    }
 }

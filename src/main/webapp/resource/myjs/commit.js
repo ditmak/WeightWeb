@@ -10,6 +10,13 @@ $(function(){
 			},
 			success:function(data){
 				console.log(data);
+				if(data.resultType=="SUCCESS"){
+					if(data.resultOperator=="redirect"){
+						window.location=data.data;
+					}
+				}else if(data.resultType="ERROR"){
+					
+				}
 			}
 		});
 	});
